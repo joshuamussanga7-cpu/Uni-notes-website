@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SEO Meta Tags -->
+    <title>Gallery - University Notes | Premium Student Showcase</title>
+    <meta name="description" content="Explore our premium gallery of university life, study sessions, and academic excellence. Download the University Notes app to join our community.">
+    <meta name="keywords" content="University Gallery, Study Life, Campus Images, Library, Laboratory, Students">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="University Notes Gallery - Premium Showcase">
+    <meta property="og:description" content="A visual journey through academic excellence.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/sjut_logo.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#1E40AF',
+                        accent: '#F59E0B',
+                        darkBg: '#0F172A',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkBg text-white">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 transition-all duration-300 py-4 px-6 md:px-12 flex justify-between items-center bg-slate-900/90 backdrop-blur-md shadow-lg">
+        <a href="index.html" class="flex items-center space-x-3 group">
+            <img src="assets/sjut_logo.png" alt="University Notes Logo" class="h-10 md:h-12 w-auto rounded-lg shadow-lg group-hover:scale-105 transition-transform">
+            <span class="text-xl font-bold tracking-tight text-white hidden sm:block">University <span class="text-primary">Notes</span></span>
+        </a>
+        <div class="hidden md:flex space-x-8 items-center">
+            <a href="index.html" class="nav-link font-medium">Home</a>
+            <a href="gallery.html" class="nav-link font-medium text-primary">Gallery</a>
+            <a href="terms.html" class="nav-link font-medium">Terms</a>
+            <a href="privacy.html" class="nav-link font-medium">Privacy Policy</a>
+            <a href="index.html#download" class="px-6 py-2 btn-gradient rounded-full font-semibold">Download APK</a>
+        </div>
+        <button id="menu-btn" class="md:hidden text-white focus:outline-none">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-[60] flex flex-col items-center justify-center space-y-8 text-2xl font-semibold hidden">
+        <button id="close-btn" class="absolute top-6 right-6 text-white">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <a href="index.html" class="hover:text-primary">Home</a>
+        <a href="gallery.html" class="hover:text-primary text-primary">Gallery</a>
+        <a href="terms.html" class="hover:text-primary">Terms of Service</a>
+        <a href="privacy.html" class="hover:text-primary">Privacy Policy</a>
+        <a href="index.html#download" class="px-8 py-3 btn-gradient rounded-full">Install APK</a>
+    </div>
+
+    <!-- Gallery Header -->
+    <main class="pt-32 pb-24 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <header class="text-center mb-12 fade-in">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">Student Life Showcase</h1>
+            <p class="text-slate-400 max-w-2xl mx-auto text-lg mb-10">A visual journey through academic excellence. Explore our vibrant campus and student community.</p>
+
+            <!-- Search and Filters -->
+            <div class="flex flex-col md:flex-row items-center justify-center gap-6 mb-12">
+                <div class="relative w-full max-w-md">
+                    <label for="gallery-search" class="sr-only">Search gallery</label>
+                    <input type="text" id="gallery-search" placeholder="Search by library, campus, students..." class="w-full bg-slate-800/50 border border-white/10 rounded-full px-6 py-3 pl-12 focus:outline-none focus:border-primary transition">
+                    <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-3 mb-16 overflow-x-auto pb-4">
+                <button class="filter-chip active" data-filter="all">All</button>
+                <button class="filter-chip" data-filter="library">Library</button>
+                <button class="filter-chip" data-filter="students">Students</button>
+                <button class="filter-chip" data-filter="laboratory">Laboratory</button>
+            </div>
+        </header>
+
+        <!-- Gallery Grid -->
+        <div class="gallery-grid fade-in">
+            <!-- 1. Custom Image 1 -->
+            <div class="gallery-card" data-category="students" tabindex="0" role="button" aria-label="Welcome to University Notes App">
+                <span class="category-badge">Features</span>
+                <img src="assets/1.png" alt="Welcome screen of the University Notes App" loading="lazy">
+                <div class="gallery-overlay">
+                    <p class="gallery-caption text-xl font-bold">Welcome to University Notes</p>
+                    <p class="text-slate-300 text-sm">Your all-in-one companion for academic success and seamless learning.</p>
+                </div>
+            </div>
+
+            <!-- 2. Custom Image 2 -->
+            <div class="gallery-card" data-category="laboratory" tabindex="0" role="button" aria-label="View Six AI features">
+                <span class="category-badge">AI Power</span>
+                <img src="assets/2.png" alt="Six AI integration within the app" loading="lazy">
+                <div class="gallery-overlay">
+                    <p class="gallery-caption text-xl font-bold">Six AI Assistance</p>
+                    <p class="text-slate-300 text-sm">Experience powerful AI tools designed to enhance your study and research.</p>
+                </div>
+            </div>
+
+            <!-- 3. Custom Image 3 -->
+            <div class="gallery-card" data-category="library" tabindex="0" role="button" aria-label="Offline access of notes">
+                <span class="category-badge">Offline</span>
+                <img src="assets/3.png" alt="Full offline access of notes inside the app" loading="lazy">
+                <div class="gallery-overlay">
+                    <p class="gallery-caption text-xl font-bold">Full Offline Access</p>
+                    <p class="text-slate-300 text-sm">Download your study materials once and access them anytime, anywhere without internet.</p>
+                </div>
+            </div>
+
+            <!-- 4. Custom Image 4 -->
+            <div class="gallery-card" data-category="students" tabindex="0" role="button" aria-label="Chatting and community features">
+                <span class="category-badge">Community</span>
+                <img src="assets/4.png" alt="Chatting and networking features in the app" loading="lazy">
+                <div class="gallery-overlay">
+                    <p class="gallery-caption text-xl font-bold">Connect & Collaborate</p>
+                    <p class="text-slate-300 text-sm">Chat with fellow students, follow accounts, and build your academic network.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download CTA -->
+        <section class="mt-32 py-20 px-6 glass-card rounded-[32px] text-center fade-in">
+            <h2 class="text-3xl md:text-5xl font-bold mb-6">Ready to Start Learning?</h2>
+            <p class="text-slate-400 text-lg mb-10 max-w-2xl mx-auto">Download the University Notes Android App and access study materials anytime.</p>
+            <button class="download-apk-action group relative inline-flex items-center justify-center min-w-[240px] px-10 py-5 btn-gradient rounded-full text-xl font-bold shadow-2xl">
+                <span class="spinner mr-3"></span>
+                <svg class="btn-icon w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414C17.0651 15.3414 16.6917 14.9681 16.6917 14.5102C16.6917 14.0523 17.0651 13.6789 17.523 13.6789C17.981 13.6789 18.3544 14.0523 18.3544 14.5102C18.3544 14.9681 17.981 15.3414 17.523 15.3414ZM6.47696 15.3414C6.01905 15.3414 5.64567 14.9681 5.64567 14.5102C5.64567 14.0523 6.01905 13.6789 6.47696 13.6789C6.93487 13.6789 7.30825 14.0523 7.30825 14.5102C7.30825 14.9681 6.93487 15.3414 6.47696 15.3414ZM17.8687 11.1354L19.4974 8.3129C19.6434 8.0594 19.5562 7.73479 19.3027 7.58882C19.0492 7.44284 18.7246 7.53003 18.5786 7.78353L16.9255 10.6483C15.4673 9.98226 13.8122 9.6133 12 9.6133C10.1878 9.6133 8.53272 9.98226 7.07449 10.6483L5.4214 7.78353C5.27543 7.53003 4.95081 7.44284 4.69731 7.58882C4.44381 7.73479 4.35662 8.0594 4.50259 8.3129L6.13125 11.1354C3.12061 12.7483 1.05664 15.8202 1.05664 19.3867H22.9434C22.9434 15.8202 20.8794 12.7483 17.8687 11.1354Z"></path></svg>
+                <span class="btn-text">Install APK</span>
+                <svg class="success-icon w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </button>
+            <p id="download-status" class="mt-4 text-accent font-medium hidden">Download will begin shortly...</p>
+        </section>
+    </main>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <span id="lightbox-close" class="lightbox-close" role="button" aria-label="Close Lightbox">&times;</span>
+        <button id="lightbox-prev" class="lightbox-nav lightbox-prev" aria-label="Previous image">&lsaquo;</button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="" class="lightbox-img">
+        </div>
+        <button id="lightbox-next" class="lightbox-nav lightbox-next" aria-label="Next image">&rsaquo;</button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900/50 py-16 px-6 md:px-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+                <div class="flex items-center space-x-4 mb-6">
+                    <img src="assets/sjut_logo.png" alt="University Notes Logo" class="h-12 w-auto rounded-xl">
+                    <h2 class="text-2xl font-bold">University Notes</h2>
+                </div>
+                <p class="text-slate-400 max-w-sm mb-6">Empowering students with accessible knowledge across all disciplines.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-8">
+                <div>
+                    <h4 class="font-bold mb-4 uppercase text-sm tracking-widest text-slate-500">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-slate-300 hover:text-white transition">Home</a></li>
+                        <li><a href="gallery.html" class="text-slate-300 hover:text-white transition">Gallery</a></li>
+                        <li><a href="terms.html" class="text-slate-300 hover:text-white transition">Terms of Service</a></li>
+                        <li><a href="privacy.html" class="text-slate-300 hover:text-white transition">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="flex flex-col justify-end">
+                    <p class="text-slate-500 text-sm">&copy; 2026 University Notes. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

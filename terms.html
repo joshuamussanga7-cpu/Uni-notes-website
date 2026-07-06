@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - University Notes | Academic Standards</title>
+    <meta name="description" content="Read our terms of service to understand academic responsibility, community standards, and identity verification on University Notes.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/sjut_logo.png">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#1E40AF',
+                        accent: '#F59E0B',
+                        darkBg: '#0F172A',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkBg text-white">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 transition-all duration-300 py-4 px-6 md:px-12 flex justify-between items-center bg-slate-900/90 backdrop-blur-md shadow-lg">
+        <a href="index.html" class="flex items-center space-x-3 group">
+            <img src="assets/sjut_logo.png" alt="University Notes Logo" class="h-10 md:h-12 w-auto rounded-lg shadow-lg group-hover:scale-105 transition-transform">
+            <span class="text-xl font-bold tracking-tight text-white hidden sm:block">University <span class="text-primary">Notes</span></span>
+        </a>
+
+        <div class="hidden md:flex space-x-8 items-center">
+            <a href="index.html" class="nav-link font-medium">Home</a>
+            <a href="gallery.html" class="nav-link font-medium">Gallery</a>
+            <a href="terms.html" class="nav-link font-medium text-primary">Terms</a>
+            <a href="privacy.html" class="nav-link font-medium">Privacy Policy</a>
+            <a href="index.html#download" class="px-6 py-2 btn-gradient rounded-full font-semibold">Download</a>
+        </div>
+
+        <button id="menu-btn" class="md:hidden text-white focus:outline-none">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-[60] flex flex-col items-center justify-center space-y-8 text-2xl font-semibold hidden">
+        <button id="close-btn" class="absolute top-6 right-6 text-white">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <a href="index.html" class="hover:text-primary">Home</a>
+        <a href="gallery.html" class="hover:text-primary">Gallery</a>
+        <a href="terms.html" class="hover:text-primary text-primary">Terms of Service</a>
+        <a href="privacy.html" class="hover:text-primary">Privacy Policy</a>
+        <a href="index.html#download" class="px-8 py-3 btn-gradient rounded-full">Install APK</a>
+    </div>
+
+    <main class="pt-32 pb-24 px-6 md:px-12 max-w-4xl mx-auto">
+        <header class="mb-12 fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Terms of Service</h1>
+            <p class="text-slate-400">Last Updated: January 2026</p>
+            <p class="mt-4 text-slate-300">Welcome to University Notes. By using our platform, you agree to these updated terms, which now include our Community and Identity features.</p>
+        </header>
+
+        <div class="space-y-8">
+            <section class="glass-card p-8 rounded-3xl fade-in">
+                <h2 class="text-2xl font-bold mb-4 text-primary">1. ACADEMIC RESPONSIBILITY</h2>
+                <p class="text-slate-300 leading-relaxed">
+                    The app provides study materials for educational support. It does not replace official university lectures. We are not liable for academic results or exam decisions based on app content.
+                </p>
+            </section>
+
+            <section class="glass-card p-8 rounded-3xl fade-in">
+                <h2 class="text-2xl font-bold mb-4 text-primary">2. INTELLECTUAL PROPERTY</h2>
+                <p class="text-slate-300 leading-relaxed">
+                    Materials are for personal, non-commercial use. Redistribution or sale of notes without authorization is prohibited.
+                </p>
+            </section>
+
+            <section class="glass-card p-8 rounded-3xl fade-in">
+                <h2 class="text-2xl font-bold mb-4 text-primary">3. COMMUNITY STANDARDS (UGC)</h2>
+                <p class="text-slate-300 mb-4">You are solely responsible for content you post in the Community Center. We strictly prohibit:</p>
+                <ul class="list-disc list-inside text-slate-300 space-y-2 leading-relaxed">
+                    <li>Harassment, bullying, or hate speech.</li>
+                    <li>Sharing leaked exam papers or sensitive university data.</li>
+                    <li>Spam, explicit media, or fraudulent advertisements.</li>
+                </ul>
+                <p class="mt-4 text-slate-300">We reserve the right to remove any content and Shadow-ban or Hard-block users who violate these standards.</p>
+            </section>
+
+            <section class="glass-card p-8 rounded-3xl fade-in">
+                <h2 class="text-2xl font-bold mb-4 text-primary">4. PRIVATE MESSAGING</h2>
+                <p class="text-slate-300 leading-relaxed">
+                    Direct Messages (DMs) are provided for academic collaboration. While we value privacy, messages may be reviewed if a user is reported for harassment or security violations.
+                </p>
+            </section>
+
+            <section class="glass-card p-8 rounded-3xl fade-in">
+                <h2 class="text-2xl font-bold mb-4 text-primary">5. IDENTITY AND VERIFICATION</h2>
+                <ul class="list-disc list-inside text-slate-300 space-y-2 leading-relaxed">
+                    <li><strong>Verification badges (Blue Ticks):</strong> Granted via ID review or paid subscription.</li>
+                    <li><strong>Paid Verification:</strong> This is a 30-day subscription. Access is revoked automatically upon expiry.</li>
+                    <li>Verification does not imply endorsement of a user's character by the platform.</li>
+                    <li>Submission of fraudulent IDs will result in a permanent ban.</li>
+                </ul>
+            </section>
+
+            <section class="glass-card p-8 rounded-3xl fade-in">
+                <h2 class="text-2xl font-bold mb-4 text-primary">6. SYSTEM MODERATION</h2>
+                <p class="text-slate-300 leading-relaxed">
+                    Admins have full authority to implement 'Maintenance Mode' or 'Community Kill-Switches' during emergencies or university exam periods to ensure platform integrity.
+                </p>
+            </section>
+
+            <section class="glass-card p-8 rounded-3xl fade-in">
+                <h2 class="text-2xl font-bold mb-4 text-primary">7. ACCOUNT SECURITY</h2>
+                <p class="text-slate-300 leading-relaxed">
+                    You are responsible for maintaining the confidentiality of your login credentials. We are not liable for unauthorized access resulting from user negligence.
+                </p>
+            </section>
+
+            <section class="glass-card p-8 rounded-3xl fade-in">
+                <h2 class="text-2xl font-bold mb-4 text-primary">8. MODIFICATIONS</h2>
+                <p class="text-slate-300 leading-relaxed">
+                    We may update these terms at any time. Continued use of the app after updates constitutes acceptance of the new terms.
+                </p>
+            </section>
+
+            <section class="glass-card p-8 rounded-3xl fade-in">
+                <h2 class="text-2xl font-bold mb-4 text-primary">SUPPORT</h2>
+                <p class="text-slate-300 leading-relaxed">
+                    For legal inquiries, contact us via the Support section.
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900/50 py-16 px-6 md:px-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+                <div class="flex items-center space-x-4 mb-6">
+                    <img src="assets/sjut_logo.png" alt="University Notes" class="h-12 w-auto rounded-xl">
+                    <h2 class="text-2xl font-bold">University Notes</h2>
+                </div>
+                <p class="text-slate-400 max-w-sm mb-6">Empowering students with accessible knowledge across all disciplines.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-8">
+                <div>
+                    <h4 class="font-bold mb-4 uppercase text-sm tracking-widest text-slate-500">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-slate-300 hover:text-white transition">Home</a></li>
+                        <li><a href="gallery.html" class="text-slate-300 hover:text-white transition">Gallery</a></li>
+                        <li><a href="terms.html" class="text-slate-300 hover:text-white transition">Terms of Service</a></li>
+                        <li><a href="privacy.html" class="text-slate-300 hover:text-white transition">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="flex flex-col justify-end">
+                    <p class="text-slate-500 text-sm">&copy; 2026 University Notes. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
