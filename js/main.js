@@ -16,6 +16,60 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Typewriter Effect
+    const typewriterElement = document.getElementById('typewriter');
+    const phrases = [
+        "Study Smarter, Not Harder",
+        "Your Library in Your Pocket",
+        "Learn Anytime, Anywhere",
+        "Achieve Academic Excellence",
+        "Master Your Modules with Ease",
+        "Success Begins with Quality Notes",
+        "Bridge the Gap to Graduation",
+        "Unlock Your Full Potential",
+        "The Ultimate Student Companion",
+        "Empowering Your Academic Journey",
+        "Notes That Make the Grade",
+        "Stay Organized, Stay Ahead",
+        "Elevate Your Learning Experience",
+        "Exams Made Simple",
+        "Knowledge is Just a Tap Away"
+    ];
+
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let typeSpeed = 100;
+
+    function type() {
+        const currentPhrase = phrases[phraseIndex];
+
+        if (isDeleting) {
+            typewriterElement.textContent = currentPhrase.substring(0, charIndex - 1);
+            charIndex--;
+            typeSpeed = 50;
+        } else {
+            typewriterElement.textContent = currentPhrase.substring(0, charIndex + 1);
+            charIndex++;
+            typeSpeed = 100;
+        }
+
+        if (!isDeleting && charIndex === currentPhrase.length) {
+            isDeleting = true;
+            typeSpeed = 2000; // Pause at end
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+            typeSpeed = 500;
+        }
+
+        setTimeout(type, typeSpeed);
+    }
+
+    if (typewriterElement) {
+        type();
+    }
+
     // Ripple Effect
     function createRipple(event) {
         const button = event.currentTarget;
@@ -33,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         button.appendChild(circle);
     }
 
-    const rippleButtons = document.querySelectorAll('.btn-gradient');
+    const rippleButtons = document.querySelectorAll('.btn-gradient, .platform-card');
     rippleButtons.forEach(btn => btn.addEventListener('click', createRipple));
 
     // APK Download Logic
@@ -94,7 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         galleryItems.forEach(item => {
             const category = item.dataset.category;
-            const caption = item.querySelector('.gallery-caption').textContent.toLowerCase();
+            const captionElement = item.querySelector('.gallery-caption');
+            const caption = captionElement ? captionElement.textContent.toLowerCase() : '';
             const matchesCategory = activeCategory === 'all' || category === activeCategory;
             const matchesSearch = caption.includes(searchTerm) || category.includes(searchTerm);
 
@@ -132,12 +187,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showImage(index) {
         const images = visibleImages();
+        if (images.length === 0) return;
         if (index < 0) index = images.length - 1;
         if (index >= images.length) index = 0;
         currentImgIndex = index;
         const img = images[index].querySelector('img');
-        lightboxImg.src = img.src;
-        lightboxImg.alt = img.alt;
+        if (img) {
+            lightboxImg.src = img.src;
+            lightboxImg.alt = img.alt;
+        }
     }
 
     galleryItems.forEach((item, index) => {
@@ -145,8 +203,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const images = visibleImages();
             currentImgIndex = images.indexOf(item);
             showImage(currentImgIndex);
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            if (lightbox) {
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
         });
     });
 

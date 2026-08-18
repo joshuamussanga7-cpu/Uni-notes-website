@@ -342,3 +342,50 @@ h1, h2, h3, h4, h5, h6 {
 #mobile-menu.hidden {
     transform: translateX(100%);
 }
+
+/* Platform Cards */
+.platform-card {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(10px);
+}
+
+.platform-card:hover {
+    transform: translateY(-10px);
+    background: rgba(30, 41, 59, 0.6);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+}
+
+/* QR Code Styling */
+.qr-container {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.platform-card:hover .qr-container {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+}
+
+#download-apk-btn:hover .qr-container { border-color: var(--primary); }
+.platform-card:nth-child(2):hover .qr-container { border-color: var(--accent); }
+.platform-card:nth-child(3):hover .qr-container { border-color: #ffffff; }
+
+/* Typewriter Background Effect */
+#typewriter-bg {
+    transform: rotate(-5deg);
+    user-select: none;
+    pointer-events: none;
+}
+
+#typewriter::after {
+    content: '_';
+    animation: blink 0.8s infinite;
+    margin-left: 5px;
+    opacity: 0.5;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0; }
+}
