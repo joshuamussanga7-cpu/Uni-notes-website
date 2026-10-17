@@ -18,16 +18,24 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="assets/sjut_logo.png">
 
+    <!-- Plus Jakarta Sans Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/style.css">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
                     colors: {
-                        primary: '#2563EB',
-                        secondary: '#1E40AF',
-                        accent: '#F59E0B',
+                        primary: '#3B82F6',
+                        secondary: '#1D4ED8',
+                        accent: '#10B981',
                         darkBg: '#0F172A',
                     }
                 }
@@ -94,15 +102,19 @@
                             <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414C17.0651 15.3414 16.6917 14.9681 16.6917 14.5102C16.6917 14.0523 17.0651 13.6789 17.523 13.6789C17.981 13.6789 18.3544 14.0523 18.3544 14.5102C18.3544 14.9681 17.981 15.3414 17.523 15.3414ZM6.47696 15.3414C6.01905 15.3414 5.64567 14.9681 5.64567 14.5102C5.64567 14.0523 6.01905 13.6789 6.47696 13.6789C6.93487 13.6789 7.30825 14.0523 7.30825 14.5102C7.30825 14.9681 6.93487 15.3414 6.47696 15.3414ZM17.8687 11.1354L19.4974 8.3129C19.6434 8.0594 19.5562 7.73479 19.3027 7.58882C19.0492 7.44284 18.7246 7.53003 18.5786 7.78353L16.9255 10.6483C15.4673 9.98226 13.8122 9.6133 12 9.6133C10.1878 9.6133 8.53272 9.98226 7.07449 10.6483L5.4214 7.78353C5.27543 7.53003 4.95081 7.44284 4.69731 7.58882C4.44381 7.73479 4.35662 8.0594 4.50259 8.3129L6.13125 11.1354C3.12061 12.7483 1.05664 15.8202 1.05664 19.3867H22.9434C22.9434 15.8202 20.8794 12.7483 17.8687 11.1354Z"></path></svg>
                         </div>
                         <h3 class="text-xl font-bold mb-1">Android</h3>
-                        <p class="text-slate-500 text-sm mb-4">Install Native APK</p>
+                        <p class="text-slate-500 text-sm mb-2">Install Native APK</p>
+                        <span id="store-version-badge" class="px-3 py-1 bg-primary/20 text-primary border border-primary/30 text-xs font-bold rounded-full mb-4">v1.0.0</span>
 
                         <!-- QR Code for Desktop -->
                         <div class="qr-container hidden lg:flex flex-col items-center mb-4 p-3 bg-white rounded-2xl shadow-inner">
-                            <img src="https://quickchart.io/qr?text=https%3A%2F%2Fwebuni.clastarhub.com%2Fassets%2Fapk%2Fapp-release.apk&size=120&margin=1" alt="Scan to download APK" class="w-24 h-24">
+                            <img id="store-qr-code-img" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Funinotes.clastarhub.com" alt="Scan to download APK" class="w-24 h-24">
                             <p class="text-[10px] text-slate-900 font-bold mt-2 uppercase tracking-tighter">Scan to Install</p>
                         </div>
 
-                        <span class="text-primary font-semibold flex items-center mt-auto">Download <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></span>
+                        <a id="main-apk-download-btn" href="#" download class="w-full py-2 px-4 bg-primary hover:bg-blue-600 text-white font-semibold rounded-xl transition-all text-center flex items-center justify-center space-x-2 mt-auto">
+                            <span>Download APK</span>
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
                     </div>
 
                     <!-- Laptop Card -->
@@ -144,24 +156,87 @@
                 <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-slate-300 text-sm">
                     <div class="glass-card p-3 rounded-xl border border-white/5">
                         <p class="text-white font-semibold">Latest Version</p>
-                        <p>v1.0.2</p>
+                        <p id="store-version-code">v1.0.0</p>
                     </div>
                     <div class="glass-card p-3 rounded-xl border border-white/5">
-                        <p class="text-white font-semibold">Release Date</p>
-                        <p>Oct 24, 2026</p>
+                        <p class="text-white font-semibold">Verification</p>
+                        <p class="text-emerald-400 font-bold">Official APK</p>
                     </div>
                     <div class="glass-card p-3 rounded-xl border border-white/5">
                         <p class="text-white font-semibold">APK Size</p>
-                        <p>15.4 MB</p>
+                        <p id="store-apk-size">28.5 MB</p>
                     </div>
                     <div class="glass-card p-3 rounded-xl border border-white/5">
                         <p class="text-white font-semibold">Min Android</p>
-                        <p>8.0+</p>
+                        <p>7.0+ (SDK 24)</p>
                     </div>
+                </div>
+
+                <!-- SHA-256 Fingerprint Display Box -->
+                <div class="mt-6 p-4 bg-slate-900/80 border border-slate-800 rounded-2xl max-w-2xl mx-auto text-left">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">SHA-256 Checksum Fingerprint</span>
+                        <button onclick="copySHA256()" class="text-xs text-primary hover:underline font-semibold">Copy</button>
+                    </div>
+                    <p id="store-sha256-text" class="text-xs font-mono text-emerald-400 break-all bg-slate-950 p-2 rounded-lg border border-slate-800">Verified Release Build</p>
+                </div>
+
+                <!-- Installation Assistant Trigger -->
+                <div class="mt-4 text-center">
+                    <button onclick="openInstallAssistant()" class="text-xs text-slate-400 hover:text-primary transition-all underline flex items-center justify-center mx-auto space-x-1">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Need help installing the APK on your phone? Click for Installation Guide</span>
+                    </button>
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- INSTALLATION ASSISTANT DIAGNOSTIC MODAL -->
+    <div id="install-assistant-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-4 hidden">
+        <div class="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 relative shadow-2xl overflow-hidden">
+            <button onclick="closeInstallAssistant()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 bg-primary/20 text-primary rounded-xl flex items-center justify-center border border-primary/30">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">APK Installation Assistant</h3>
+                    <p class="text-slate-400 text-xs">Follow these steps if Android prompts a permission message.</p>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-xs text-slate-300">
+                <div class="p-3 bg-slate-800/60 rounded-xl border border-white/5">
+                    <span class="font-bold text-primary block mb-1">Step 1: Download & Tap File</span>
+                    <p>Tap "Download APK". Once finished, tap the completed download notification or open your device "Downloads" folder.</p>
+                </div>
+                <div class="p-3 bg-slate-800/60 rounded-xl border border-white/5">
+                    <span class="font-bold text-amber-400 block mb-1">Step 2: Enable "Install Unknown Apps"</span>
+                    <p>If Android displays <em>"For security, your phone is not allowed to install unknown apps"</em>, tap <strong>Settings</strong> and toggle <strong>Allow from this source</strong> to ON.</p>
+                </div>
+                <div class="p-3 bg-slate-800/60 rounded-xl border border-white/5">
+                    <span class="font-bold text-emerald-400 block mb-1">Step 3: Play Protect Prompt</span>
+                    <p>If Google Play Protect displays a message, tap <strong>More Details</strong> and select <strong>Install Anyway</strong>.</p>
+                </div>
+            </div>
+
+            <button onclick="closeInstallAssistant()" class="w-full mt-6 py-3 bg-primary hover:bg-blue-600 text-white font-bold rounded-xl transition-all">Got it, proceed with Download</button>
+        </div>
+    </div>
+
+    <!-- Release History Section -->
+    <section class="py-16 px-6 md:px-12 max-w-5xl mx-auto">
+        <h2 class="text-2xl font-bold mb-6 text-white flex items-center space-x-3">
+            <span>Release History & Release Notes</span>
+        </h2>
+        <div id="release-history-container" class="space-y-4">
+            <p class="text-slate-500 text-sm italic">Loading release history...</p>
+        </div>
+    </section>
 
     <!-- Why Install Section -->
     <section class="py-24 px-6 md:px-12 bg-slate-900/30">
@@ -375,12 +450,17 @@
                     </ul>
                 </div>
                 <div class="flex flex-col justify-end">
-                    <p class="text-slate-500 text-sm">&copy; 2026 University Notes. All rights reserved.</p>
+                    <p class="text-slate-500 text-sm">&copy; 2026 University Notes. <span id="secret-admin-trigger" onclick="handleSecretAdminTap()" class="cursor-pointer select-none">All rights reserved.</span></p>
                 </div>
             </div>
         </div>
     </footer>
 
+    <!-- Firebase Compat SDKs for App Store Client -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+
     <script src="js/main.js"></script>
+    <script src="js/store.js"></script>
 </body>
 </html>
