@@ -1437,12 +1437,14 @@ function switchNotifSubTab(subTabName) {
 
                 // Load data on demand
                 if (t === 'overview') loadNotificationOverview();
+                else if (t === 'broadcast') {}
                 else if (t === 'morning') loadMessages('morning');
                 else if (t === 'evening') loadMessages('evening');
                 else if (t === 'night') loadMessages('night');
                 else if (t === 'latenight') loadMessages('latenight');
                 else if (t === 'history') loadSentHistory();
                 else if (t === 'calendar') loadNotificationCalendar();
+                else if (t === 'religious') loadReligiousMessages();
             } else {
                 btn.className = "px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all";
                 content.classList.add('hidden');
@@ -2080,6 +2082,57 @@ async function toggleAdmobFallback(isChecked) {
     } catch (e) {
         console.error("Error updating AdMob config:", e);
         showToast('error', 'Update Failed', e.message);
+    }
+}
+
+/**
+ * Load Religious & Spiritual Messages Filter
+ */
+async function loadReligiousMessages() {
+    const tbody = document.getElementById("messages-table-religious");
+    if (!tbody) return;
+
+    try {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500 italic">Loading religious messages...</td></tr>`;
+        const snap = await db.collection("motivationMessages").get();
+
+        const religiousKeywords = ['friday', 'jummah', 'islam', 'sabath', 'saturday', 'sunday', 'church', 'christian', 'worship', 'blessing', 'spiritual', 'godfirst'];
+        let html = '';
+        let count = 0;
+
+        snap.forEach(doc => {
+            const m = doc.data();
+            const tags = (m.tags || []).map(t => t.toLowerCase());
+            const hasReligiousTag = tags.some(t => religiousKeywords.some(kw => t.includes(kw)));
+
+            if (hasReligiousTag) {
+                count++;
+                const tagsFormatted = (m.tags || []).map(t => `<span class="px-2 py-0.5 bg-slate-800 text-primary rounded-md text-[10px] font-mono mr-1">#${t}</span>`).join('');
+                html += `
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="p-3">
+                            <div class="font-bold text-white">${m.title}</div>
+                            <div class="text-slate-400 mt-0.5">${m.body}</div>
+                        </td>
+                        <td class="p-3"><span class="px-2.5 py-1 bg-primary/20 text-primary rounded-full text-[10px] font-bold uppercase">${m.category}</span></td>
+                        <td class="p-3">${tagsFormatted}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="deleteNotifMessage('${doc.id}', 'morning')" class="px-3 py-1.5 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 rounded-lg text-xs font-semibold">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }
+        });
+
+        if (count === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500 italic">No messages found with religious tags. Add tags like #friday, #sabath, or #sunday to any message.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = html;
+    } catch (e) {
+        console.error("Error loading religious messages:", e);
+        tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-rose-400">Failed to load religious messages.</td></tr>`;
     }
 }
 

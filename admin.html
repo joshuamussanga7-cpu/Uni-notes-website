@@ -1254,8 +1254,25 @@
                             </div>
                         </div>
 
-                        <div class="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-xs text-slate-300">
-                            💡 <strong>Admin Tip:</strong> To add religious messages, simply go to Morning, Midday, or Evening message managers, create your message, and include the appropriate religious tags (e.g. <code class="text-primary font-mono">#friday</code> or <code class="text-primary font-mono">#sunday</code>). The backend cron engine handles the rest automatically!
+                        <div class="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-xs text-slate-300 mb-6">
+                            💡 <strong>Admin Tip:</strong> Messages tagged with religious keywords (<code class="text-primary font-mono">#friday</code>, <code class="text-primary font-mono">#sabath</code>, <code class="text-primary font-mono">#sunday</code>, <code class="text-primary font-mono">#spiritual</code>) appear here automatically based on their tags.
+                        </div>
+
+                        <!-- Religious Messages Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="text-slate-400 uppercase bg-slate-900/60 border-b border-white/10">
+                                    <tr>
+                                        <th class="p-3">Title & Body</th>
+                                        <th class="p-3">Category</th>
+                                        <th class="p-3">Religious Tags</th>
+                                        <th class="p-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="messages-table-religious" class="divide-y divide-white/5 text-slate-300">
+                                    <tr><td colspan="4" class="p-6 text-center text-slate-500 italic">Loading religious messages...</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
