@@ -653,12 +653,53 @@
         <!-- TAB: BANNERS & ADS MANAGER (Replicating BannerManagementActivity.kt) -->
         <section id="tab-content-banners" class="tab-content hidden">
             <div class="glass-watery-panel rounded-3xl p-6 sm:p-8 space-y-6">
-                <h3 class="text-xl font-bold text-white">Global Banners & Sponsored Ads Manager</h3>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Global Banners & Sponsored Ads Manager</h3>
+                        <p class="text-slate-400 text-xs mt-1">Upload promotional banners, videos, configure AdMob fallback, and manage active student announcements.</p>
+                    </div>
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <span class="text-xs font-semibold text-slate-300">Show AdMob Fallback</span>
+                        <input type="checkbox" id="sw-admob-fallback" onchange="toggleAdmobFallback(this.checked)" class="w-4 h-4 rounded bg-slate-900 border-white/10 text-primary">
+                    </label>
+                </div>
 
-                <div class="p-4 glass-watery-card rounded-2xl space-y-3">
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Global App Banner Text</label>
-                    <input type="text" id="input-global-banner-text" placeholder="e.g. Semester Exam Timetable Published!" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primary">
-                    <button onclick="saveGlobalBannerText()" class="px-4 py-2 bg-primary hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all">Update App Banner</button>
+                <!-- Create Banner Form -->
+                <div class="glass-watery-card rounded-2xl p-6 space-y-4">
+                    <h4 class="text-sm font-bold text-white">Upload New Banner / Ad</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Banner Title</label>
+                            <input type="text" id="banner-input-title" placeholder="e.g. Graduation Gala 2025" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Subtitle</label>
+                            <input type="text" id="banner-input-subtitle" placeholder="e.g. Secure your tickets early" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Description</label>
+                        <textarea id="banner-input-desc" rows="2" placeholder="Enter banner description..." class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary"></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">External Link / Action URL</label>
+                            <input type="url" id="banner-input-link" placeholder="https://..." class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Media Image URL / File</label>
+                            <input type="text" id="banner-input-media" placeholder="https://... or upload image" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary">
+                        </div>
+                    </div>
+                    <button onclick="uploadAdminBanner()" class="px-6 py-3 bg-primary hover:bg-secondary text-white font-bold text-xs rounded-xl shadow-lg transition-all">Upload & Publish Banner</button>
+                </div>
+
+                <!-- Active Banners List -->
+                <div class="space-y-4">
+                    <h4 class="text-sm font-bold text-white">Active Banners & Ads</h4>
+                    <div id="admin-banners-list" class="space-y-3">
+                        <p class="text-slate-500 text-xs italic">Loading banners...</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -803,6 +844,7 @@
                 <!-- Internal Sub-Navigation Tabs -->
                 <div class="flex flex-wrap gap-2 border-b border-white/10 pb-4 mb-6 text-xs font-semibold">
                     <button onclick="switchNotifSubTab('overview')" id="notif-subtab-btn-overview" class="px-4 py-2 rounded-xl bg-primary text-white shadow-md transition-all">Overview</button>
+                    <button onclick="switchNotifSubTab('broadcast')" id="notif-subtab-btn-broadcast" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">📢 Manual Broadcast</button>
                     <button onclick="switchNotifSubTab('morning')" id="notif-subtab-btn-morning" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">🌅 Morning (08:00)</button>
                     <button onclick="switchNotifSubTab('evening')" id="notif-subtab-btn-evening" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">☀️ Midday (12:00)</button>
                     <button onclick="switchNotifSubTab('night')" id="notif-subtab-btn-night" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">📚 Evening (18:00)</button>
@@ -872,6 +914,86 @@
                             </div>
                             <p id="overview-night-preview" class="text-slate-300 text-xs italic mb-4">Loading next scheduled message...</p>
                             <button onclick="switchNotifSubTab('night')" class="px-4 py-2 bg-primary/20 text-primary border border-primary/30 text-xs font-bold rounded-xl hover:bg-primary/30 transition-all">Manage Evening Messages</button>
+                        </div>
+
+                        <div class="glass-watery-card rounded-2xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-white text-sm flex items-center space-x-2">
+                                    <span>🌙</span><span>Late-Night Good Wishes</span>
+                                </h4>
+                                <span class="text-xs font-mono text-primary font-bold">10:00 PM (EAT)</span>
+                            </div>
+                            <p id="overview-latenight-preview" class="text-slate-300 text-xs italic mb-4">Loading next scheduled message...</p>
+                            <button onclick="switchNotifSubTab('latenight')" class="px-4 py-2 bg-primary/20 text-primary border border-primary/30 text-xs font-bold rounded-xl hover:bg-primary/30 transition-all">Manage Late-Night Messages</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBTAB: MANUAL BROADCAST (Parity with CreateNotificationActivity.kt) -->
+                <div id="notif-subtab-content-broadcast" class="notif-subtab-content hidden space-y-6">
+                    <div class="glass-watery-card rounded-3xl p-6 sm:p-8 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                                <span>📢</span><span>Send Targeted Broadcast Notification</span>
+                            </h3>
+                            <p class="text-slate-400 text-xs mt-1">Broadcast announcements to specific faculties, academic years, or courses with push notification delivery.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Target Faculty / Department</label>
+                                <select id="broadcast-faculty" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary">
+                                    <option value="All Faculties">All Faculties</option>
+                                    <option value="Computing & IT">Computing & IT</option>
+                                    <option value="Business & Economics">Business & Economics</option>
+                                    <option value="Engineering">Engineering</option>
+                                    <option value="Science & Education">Science & Education</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Target Academic Year</label>
+                                <select id="broadcast-year" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary">
+                                    <option value="0">All Years</option>
+                                    <option value="1">Year 1</option>
+                                    <option value="2">Year 2</option>
+                                    <option value="3">Year 3</option>
+                                    <option value="4">Year 4</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Target Course (Optional)</label>
+                                <input type="text" id="broadcast-course" placeholder="e.g. BSc Computer Science" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Notification Title</label>
+                            <input type="text" id="broadcast-title" placeholder="e.g. Mid-Semester Examination Timetable Released" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary">
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Message Body</label>
+                            <textarea id="broadcast-message" rows="4" placeholder="Enter detailed announcement message..." class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary"></textarea>
+                        </div>
+
+                        <div class="flex items-center space-x-6 text-xs">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="broadcast-high-priority" class="w-4 h-4 rounded bg-slate-900 border-white/10 text-primary">
+                                <span class="text-slate-300 font-semibold">High Priority</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="broadcast-pinned" class="w-4 h-4 rounded bg-slate-900 border-white/10 text-primary">
+                                <span class="text-slate-300 font-semibold">Pin to Top</span>
+                            </label>
+                        </div>
+
+                        <div class="pt-2">
+                            <button onclick="sendTargetedBroadcast()" class="px-6 py-3.5 bg-primary hover:bg-secondary text-white font-bold text-xs rounded-xl shadow-lg shadow-primary/25 transition-all flex items-center space-x-2">
+                                <span>🚀</span><span>Publish & Send Push Notification</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                         </div>
 
                         <div class="glass-watery-card rounded-2xl p-6">

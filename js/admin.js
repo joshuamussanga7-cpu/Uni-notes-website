@@ -373,6 +373,8 @@ function switchTab(tabName) {
                 content.classList.remove('hidden');
                 if (t === 'notificationsManager') {
                     loadNotificationOverview();
+                } else if (t === 'banners') {
+                    loadAdminBanners();
                 }
             } else {
                 btn.classList.remove('sidebar-item-active');
@@ -1874,6 +1876,176 @@ async function loadCampaigns() {
         container.innerHTML = html;
     } catch (e) {
         console.error("Error loading campaigns:", e);
+    }
+}
+
+/**
+ * ANDROID ADMIN PARITY: TARGETED BROADCAST NOTIFICATIONS (Matching CreateNotificationActivity.kt)
+ */
+async function sendTargetedBroadcast() {
+    const faculty = document.getElementById("broadcast-faculty").value;
+    const year = parseInt(document.getElementById("broadcast-year").value) || 0;
+    const course = document.getElementById("broadcast-course").value.trim();
+    const title = document.getElementById("broadcast-title").value.trim();
+    const message = document.getElementById("broadcast-message").value.trim();
+    const isHighPriority = document.getElementById("broadcast-high-priority").checked;
+    const isPinned = document.getElementById("broadcast-pinned").checked;
+
+    if (!title || !message) {
+        showToast('error', 'Validation Error', 'Title and message are required.');
+        return;
+    }
+
+    try {
+        const notificationId = db.collection("notifications").doc().id;
+        const payload = {
+            id: notificationId,
+            title,
+            message,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            targetFaculty: faculty,
+            targetYear: year,
+            targetCourse: course || 'All',
+            isHighPriority,
+            isPinned,
+            senderName: currentUser?.email?.split('@')[0] || 'Admin',
+            senderRole: 'admin'
+        };
+
+        // 1. Save to notifications collection
+        await db.collection("notifications").doc(notificationId).set(payload);
+
+        // 2. Queue in notification_queue for push notification dispatch
+        await db.collection("notification_queue").add({
+            to: 'all_students',
+            title: title,
+            body: message,
+            type: 'broadcast',
+            faculty: faculty,
+            year: year,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showToast('success', 'Broadcast Sent', 'Targeted announcement published and queued for push delivery.');
+        logAdminAction(`Sent targeted broadcast notification: ${title}`);
+
+        // Reset form
+        document.getElementById("broadcast-title").value = "";
+        document.getElementById("broadcast-message").value = "";
+        document.getElementById("broadcast-course").value = "";
+    } catch (e) {
+        console.error("Error sending targeted broadcast:", e);
+        showToast('error', 'Broadcast Failed', e.message);
+    }
+}
+
+/**
+ * ANDROID ADMIN PARITY: BANNER & MEDIA MANAGEMENT (Matching BannerManagementActivity.kt)
+ */
+async function uploadAdminBanner() {
+    const title = document.getElementById("banner-input-title").value.trim();
+    const subtitle = document.getElementById("banner-input-subtitle").value.trim();
+    const description = document.getElementById("banner-input-desc").value.trim();
+    const externalLink = document.getElementById("banner-input-link").value.trim();
+    const mediaUrl = document.getElementById("banner-input-media").value.trim() || "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800";
+
+    if (!title || !description) {
+        showToast('error', 'Validation Error', 'Banner title and description are required.');
+        return;
+    }
+
+    try {
+        const bannerId = db.collection("banners").doc().id;
+        await db.collection("banners").doc(bannerId).set({
+            id: bannerId,
+            title,
+            subtitle,
+            description,
+            externalLink,
+            mediaUrl,
+            mediaType: 'image',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showToast('success', 'Banner Uploaded', 'New global app banner published successfully.');
+        logAdminAction(`Published global banner: ${title}`);
+
+        // Reset form
+        document.getElementById("banner-input-title").value = "";
+        document.getElementById("banner-input-subtitle").value = "";
+        document.getElementById("banner-input-desc").value = "";
+        document.getElementById("banner-input-link").value = "";
+        document.getElementById("banner-input-media").value = "";
+
+        loadAdminBanners();
+    } catch (e) {
+        console.error("Error uploading banner:", e);
+        showToast('error', 'Upload Failed', e.message);
+    }
+}
+
+async function loadAdminBanners() {
+    const container = document.getElementById("admin-banners-list");
+    if (!container) return;
+
+    try {
+        const doc = await db.collection("settings").document("global_config").get();
+        if (doc.exists) {
+            const showAds = doc.data().showAdmobFallback ?? true;
+            document.getElementById("sw-admob-fallback").checked = showAds;
+        }
+
+        const snap = await db.collection("banners").orderBy("timestamp", "desc").get();
+        if (snap.empty) {
+            container.innerHTML = `<p class="text-slate-500 text-xs italic">No active banners uploaded.</p>`;
+            return;
+        }
+
+        let html = '';
+        snap.forEach(docSnap => {
+            const b = docSnap.data();
+            html += `
+                <div class="glass-watery-card rounded-2xl p-4 flex items-center justify-between gap-4">
+                    <img src="${b.mediaUrl}" alt="Banner" class="w-16 h-16 rounded-xl object-cover shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <h5 class="font-bold text-white text-xs truncate">${b.title}</h5>
+                        <p class="text-slate-300 text-[11px] truncate">${b.subtitle || b.description}</p>
+                        <a href="${b.externalLink || '#'}" target="_blank" class="text-primary text-[10px] hover:underline">${b.externalLink || 'No link'}</a>
+                    </div>
+                    <button onclick="deleteAdminBanner('${docSnap.id}')" class="px-3 py-1.5 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 rounded-lg text-xs font-semibold shrink-0">Delete</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } catch (e) {
+        console.error("Error loading admin banners:", e);
+    }
+}
+
+async function deleteAdminBanner(id) {
+    if (!confirm("Are you sure you want to delete this banner?")) return;
+    try {
+        await db.collection("banners").doc(id).delete();
+        showToast('success', 'Banner Deleted', 'Banner removed successfully.');
+        logAdminAction(`Deleted banner ID: ${id}`);
+        loadAdminBanners();
+    } catch (e) {
+        console.error("Error deleting banner:", e);
+        showToast('error', 'Delete Failed', e.message);
+    }
+}
+
+async function toggleAdmobFallback(isChecked) {
+    try {
+        await db.collection("settings").document("global_config").set({
+            showAdmobFallback: isChecked,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        showToast('success', 'Config Updated', `AdMob fallback ads ${isChecked ? 'enabled' : 'disabled'}.`);
+        logAdminAction(`Toggled AdMob fallback ads: ${isChecked}`);
+    } catch (e) {
+        console.error("Error updating AdMob config:", e);
+        showToast('error', 'Update Failed', e.message);
     }
 }
 
