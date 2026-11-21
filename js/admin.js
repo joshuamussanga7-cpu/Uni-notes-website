@@ -1518,9 +1518,75 @@ async function loadNotificationOverview() {
                 previewEl.textContent = "No active messages configured in this category.";
             }
         }
+
+        startNextSessionCountdown();
     } catch (e) {
         console.error("Error loading notification overview:", e);
     }
+}
+
+let countdownInterval = null;
+
+function startNextSessionCountdown() {
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    const sessions = [
+        { hour: 8, minute: 0, category: 'morning', name: 'Morning Motivation 🌅' },
+        { hour: 12, minute: 0, category: 'evening', name: 'Midday / Afternoon Boost ☀️' },
+        { hour: 18, minute: 0, category: 'night', name: 'Evening Reflection & Study 📚' },
+        { hour: 22, minute: 0, category: 'latenight', name: 'Late-Night Good Wishes 🌙' }
+    ];
+
+    async function updateCountdown() {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        const currentSecond = now.getSeconds();
+        const currentTotalSecs = currentHour * 3600 + currentMinute * 60 + currentSecond;
+
+        let nextSession = null;
+        for (const s of sessions) {
+            const sessionTotalSecs = s.hour * 3600 + s.minute * 60;
+            if (sessionTotalSecs > currentTotalSecs) {
+                nextSession = s;
+                break;
+            }
+        }
+
+        if (!nextSession) {
+            nextSession = sessions[0];
+        }
+
+        const sessionTotalSecs = nextSession.hour * 3600 + nextSession.minute * 60;
+        let diffSecs = sessionTotalSecs - currentTotalSecs;
+        if (diffSecs < 0) {
+            diffSecs += 24 * 3600;
+        }
+
+        const hrs = Math.floor(diffSecs / 3600);
+        const mins = Math.floor((diffSecs % 3600) / 60);
+        const secs = diffSecs % 60;
+
+        const hEl = document.getElementById("countdown-hours");
+        const mEl = document.getElementById("countdown-mins");
+        const sEl = document.getElementById("countdown-secs");
+        const titleEl = document.getElementById("next-session-title");
+        const previewEl = document.getElementById("next-session-message-preview");
+
+        if (hEl) hEl.textContent = String(hrs).padStart(2, '0');
+        if (mEl) mEl.textContent = String(mins).padStart(2, '0');
+        if (sEl) sEl.textContent = String(secs).padStart(2, '0');
+        if (titleEl) titleEl.textContent = `${nextSession.name} (${String(nextSession.hour).padStart(2, '0')}:${String(nextSession.minute).padStart(2, '0')} EAT)`;
+
+        const todayStr = getTodayDateString();
+        const msg = await getCachedMessageForDay(todayStr, nextSession.category);
+        if (previewEl && msg) {
+            previewEl.textContent = `"${msg.title}" — ${msg.body}`;
+        }
+    }
+
+    updateCountdown();
+    countdownInterval = setInterval(updateCountdown, 1000);
 }
 
 async function loadMessages(category) {

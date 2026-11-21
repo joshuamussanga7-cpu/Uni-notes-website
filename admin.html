@@ -859,6 +859,33 @@
 
                 <!-- SUBTAB 1: OVERVIEW -->
                 <div id="notif-subtab-content-overview" class="notif-subtab-content space-y-6">
+                    <!-- Live Countdown & Next Session Card -->
+                    <div class="glass-watery-panel rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-primary/20 via-slate-900 to-emerald-500/15 border border-primary/30 relative overflow-hidden">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                            <div>
+                                <span class="px-3 py-1 bg-primary/20 text-primary border border-primary/30 text-[10px] font-mono uppercase font-bold rounded-full">Next Automated Dispatch</span>
+                                <h3 id="next-session-title" class="text-lg font-extrabold text-white mt-2">Loading next session...</h3>
+                                <p id="next-session-message-preview" class="text-slate-300 text-xs italic mt-1 max-w-xl">"..."</p>
+                            </div>
+                            <div class="flex items-center space-x-4 bg-slate-950/60 px-6 py-4 rounded-2xl border border-white/10 shrink-0">
+                                <div class="text-center">
+                                    <span id="countdown-hours" class="text-2xl font-black text-white font-mono">00</span>
+                                    <p class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Hours</p>
+                                </div>
+                                <span class="text-xl font-bold text-primary">:</span>
+                                <div class="text-center">
+                                    <span id="countdown-mins" class="text-2xl font-black text-white font-mono">00</span>
+                                    <p class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Mins</p>
+                                </div>
+                                <span class="text-xl font-bold text-primary">:</span>
+                                <div class="text-center">
+                                    <span id="countdown-secs" class="text-2xl font-black text-white font-mono">00</span>
+                                    <p class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Secs</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="glass-watery-card rounded-2xl p-5">
                             <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Active Devices</p>
