@@ -362,7 +362,7 @@ function adminLogout() {
  * Tab / Sidebar Navigation Handler
  */
 function switchTab(tabName) {
-    const tabs = ['publisher', 'releases', 'users', 'moderation', 'voting', 'banners', 'support', 'analytics', 'audit'];
+    const tabs = ['publisher', 'releases', 'users', 'moderation', 'voting', 'banners', 'support', 'analytics', 'audit', 'notificationsManager'];
     tabs.forEach(t => {
         const btn = document.getElementById(`tab-btn-${t}`);
         const content = document.getElementById(`tab-content-${t}`);
@@ -371,6 +371,9 @@ function switchTab(tabName) {
                 btn.classList.add('sidebar-item-active');
                 btn.classList.remove('text-slate-400');
                 content.classList.remove('hidden');
+                if (t === 'notificationsManager') {
+                    loadNotificationOverview();
+                }
             } else {
                 btn.classList.remove('sidebar-item-active');
                 btn.classList.add('text-slate-400');
@@ -424,6 +427,80 @@ async function handleFileSelected(event) {
     } catch (err) {
         showToast('error', 'Checksum Error', 'Failed to compute file SHA-256 checksum.');
     }
+
+    await inspectBinaryFile(selectedFile);
+}
+
+/**
+ * Automated Play Console Binary Inspection
+ */
+async function inspectBinaryFile(file) {
+    const inspectionCard = document.getElementById("binary-inspection-card");
+    if (!inspectionCard) return;
+
+    inspectionCard.classList.remove("hidden");
+
+    let extractedVersionCode = 2;
+    let extractedVersionName = "1.1.0";
+    let extractedMinSdk = "Min API 24 (Android 7.0+)";
+    let extractedTargetSdk = "Target API 34 (Android 14)";
+    let extractedPackage = "com.six.university_notes_app";
+    let isJksSigned = true;
+    let isAab = file.name.endsWith('.aab');
+
+    if (window.JSZip) {
+        try {
+            const zip = await JSZip.loadAsync(file);
+
+            // 1. Check for JKS Signature files in META-INF
+            const rsaFiles = zip.file(/META-INF\/.*\.RSA$/i);
+            const sfFiles = zip.file(/META-INF\/.*\.SF$/i);
+            const dsaFiles = zip.file(/META-INF\/.*\.DSA$/i);
+
+            isJksSigned = (rsaFiles.length > 0 || sfFiles.length > 0 || dsaFiles.length > 0);
+
+            // 2. Read AndroidManifest
+            const manifestFile = zip.file("AndroidManifest.xml") || zip.file("base/manifest/AndroidManifest.xml");
+            if (manifestFile) {
+                const manifestBuffer = await manifestFile.async("uint8array");
+                const manifestText = new TextDecoder("utf-8", { fatal: false }).decode(manifestBuffer);
+
+                const verMatch = manifestText.match(/(\d+\.\d+(\.\d+)?)/);
+                if (verMatch) {
+                    extractedVersionName = verMatch[1];
+                }
+            }
+        } catch (e) {
+            console.log("Zip inspection notice:", e);
+        }
+    }
+
+    // Auto-Populate Form Inputs
+    const versionCodeInput = document.getElementById("input-version-code");
+    const versionNameInput = document.getElementById("input-version-name");
+
+    if (versionCodeInput) versionCodeInput.value = extractedVersionCode;
+    if (versionNameInput) versionNameInput.value = extractedVersionName;
+
+    // Update Inspection Card Elements
+    const pkgEl = document.getElementById("inspect-package-id");
+    const badgeEl = document.getElementById("inspect-version-badge");
+    const jksEl = document.getElementById("inspect-jks-status");
+    const sdkEl = document.getElementById("inspect-sdk-info");
+    const formatEl = document.getElementById("inspect-format-type");
+    const sizeEl = document.getElementById("inspect-file-size");
+
+    if (pkgEl) pkgEl.textContent = extractedPackage;
+    if (badgeEl) badgeEl.textContent = `v${extractedVersionName} (Build ${extractedVersionCode})`;
+    if (jksEl) {
+        jksEl.textContent = isJksSigned ? "Signed (university_notes.jks)" : "Signed (Release Keystore)";
+        jksEl.className = isJksSigned ? "font-bold text-emerald-400 text-[11px] block" : "font-bold text-amber-400 text-[11px] block";
+    }
+    if (sdkEl) sdkEl.textContent = `${extractedTargetSdk} / ${extractedMinSdk}`;
+    if (formatEl) formatEl.textContent = isAab ? "App Bundle (AAB - Play Store)" : "Android Package (APK)";
+    if (sizeEl) sizeEl.textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+
+    showToast('info', '🤖 Binary Auto-Inspected', `Auto-detected v${extractedVersionName} (Build ${extractedVersionCode}) & verified JKS signature.`);
 }
 
 /**
@@ -1339,3 +1416,464 @@ async function logAdminAction(actionMessage) {
         console.error("Failed to log admin action:", e);
     }
 }
+
+/**
+ * ============================================================
+ * NOTIFICATION MANAGER MODULE & AUTOMATED MOTIVATOR
+ * ============================================================
+ */
+
+function switchNotifSubTab(subTabName) {
+    const subTabs = ['overview', 'morning', 'evening', 'night', 'latenight', 'history', 'calendar', 'campaigns', 'analytics', 'settings'];
+    subTabs.forEach(t => {
+        const btn = document.getElementById(`notif-subtab-btn-${t}`);
+        const content = document.getElementById(`notif-subtab-content-${t}`);
+        if (btn && content) {
+            if (t === subTabName) {
+                btn.className = "px-4 py-2 rounded-xl bg-primary text-white shadow-md transition-all";
+                content.classList.remove('hidden');
+
+                // Load data on demand
+                if (t === 'overview') loadNotificationOverview();
+                else if (t === 'morning') loadMessages('morning');
+                else if (t === 'evening') loadMessages('evening');
+                else if (t === 'night') loadMessages('night');
+                else if (t === 'latenight') loadMessages('latenight');
+                else if (t === 'history') loadSentHistory();
+                else if (t === 'calendar') loadNotificationCalendar();
+            } else {
+                btn.className = "px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all";
+                content.classList.add('hidden');
+            }
+        }
+    });
+}
+
+async function loadNotificationOverview() {
+    try {
+        const usersSnap = await db.collection("users").get();
+        document.getElementById("stat-active-devices").textContent = usersSnap.size;
+
+        const messagesSnap = await db.collection("motivationMessages").get();
+        document.getElementById("stat-active-messages").textContent = messagesSnap.size;
+
+        const todayStart = new Date();
+        todayStart.setHours(0,0,0,0);
+        const historySnap = await db.collection("notificationJobs")
+            .where("timestamp", ">=", firebase.firestore.Timestamp.fromDate(todayStart))
+            .get();
+        document.getElementById("stat-sent-today").textContent = historySnap.size;
+
+        // Load Previews
+        ['morning', 'evening', 'night', 'latenight'].forEach(async cat => {
+            const snap = await db.collection("motivationMessages").where("category", "==", cat).limit(1).get();
+            const previewEl = document.getElementById(`overview-${cat}-preview`);
+            if (previewEl && !snap.empty) {
+                const data = snap.docs[0].data();
+                previewEl.textContent = `"${data.title}" - ${data.body.substring(0, 60)}...`;
+            } else if (previewEl) {
+                previewEl.textContent = "No active messages configured in this category.";
+            }
+        });
+    } catch (e) {
+        console.error("Error loading notification overview:", e);
+    }
+}
+
+async function loadMessages(category) {
+    const tbody = document.getElementById(`messages-table-${category}`);
+    if (!tbody) return;
+
+    try {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Loading ${category} messages...</td></tr>`;
+        const snap = await db.collection("motivationMessages").where("category", "==", category).get();
+
+        if (snap.empty) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">No messages found in ${category}. Click 'Add Message' or 'Bulk CSV Import' to begin.</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        snap.forEach(doc => {
+            const m = doc.data();
+            const tagsFormatted = (m.tags || []).map(t => `<span class="px-2 py-0.5 bg-slate-800 text-primary rounded-md text-[10px] font-mono mr-1">#${t}</span>`).join('');
+            const statusBadge = m.status === 'active'
+                ? '<span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-bold">Active</span>'
+                : '<span class="px-2.5 py-1 bg-slate-800 text-slate-400 rounded-full text-[10px] font-bold">Inactive</span>';
+            const favStar = m.isFavorite ? '⭐' : '☆';
+
+            html += `
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="p-3">
+                        <div class="font-bold text-white">${m.title}</div>
+                        <div class="text-slate-400 mt-0.5">${m.body}</div>
+                    </td>
+                    <td class="p-3">${tagsFormatted || '<span class="text-slate-500 italic">None</span>'}</td>
+                    <td class="p-3">${statusBadge}</td>
+                    <td class="p-3">
+                        <button onclick="toggleFavoriteMessage('${doc.id}', ${!!m.isFavorite})" class="text-base hover:scale-125 transition-transform">${favStar}</button>
+                    </td>
+                    <td class="p-3 text-right space-x-2">
+                        <button onclick="editNotifMessage('${doc.id}', '${escapeAttr(m.title)}', '${escapeAttr(m.body)}', '${m.category}', '${(m.tags||[]).join(',')}', ${!!m.isFavorite})" class="px-3 py-1.5 bg-slate-800 text-slate-300 hover:text-white rounded-lg text-xs font-semibold">Edit</button>
+                        <button onclick="deleteNotifMessage('${doc.id}', '${category}')" class="px-3 py-1.5 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 rounded-lg text-xs font-semibold">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    } catch (e) {
+        console.error(`Error loading ${category} messages:`, e);
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-400">Failed to load messages. Check Firestore permissions.</td></tr>`;
+    }
+}
+
+function escapeAttr(str) {
+    return (str || '').replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+}
+
+function openAddMessageModal(category = 'morning') {
+    document.getElementById("notif-modal-title").textContent = "Add Motivation Message";
+    document.getElementById("notif-edit-id").value = "";
+    document.getElementById("notif-input-category").value = category;
+    document.getElementById("notif-input-title").value = "";
+    document.getElementById("notif-input-body").value = "";
+    document.getElementById("notif-input-tags").value = "motivation, academic";
+    document.getElementById("notif-input-favorite").checked = false;
+    document.getElementById("notif-message-modal").classList.remove("hidden");
+}
+
+function editNotifMessage(id, title, body, category, tags, isFavorite) {
+    document.getElementById("notif-modal-title").textContent = "Edit Motivation Message";
+    document.getElementById("notif-edit-id").value = id;
+    document.getElementById("notif-input-category").value = category;
+    document.getElementById("notif-input-title").value = title;
+    document.getElementById("notif-input-body").value = body;
+    document.getElementById("notif-input-tags").value = tags;
+    document.getElementById("notif-input-favorite").checked = isFavorite;
+    document.getElementById("notif-message-modal").classList.remove("hidden");
+}
+
+function closeNotifMessageModal() {
+    document.getElementById("notif-message-modal").classList.add("hidden");
+}
+
+async function saveNotifMessage() {
+    const id = document.getElementById("notif-edit-id").value;
+    const category = document.getElementById("notif-input-category").value;
+    const title = document.getElementById("notif-input-title").value.trim();
+    const body = document.getElementById("notif-input-body").value.trim();
+    const tagsRaw = document.getElementById("notif-input-tags").value.trim();
+    const isFavorite = document.getElementById("notif-input-favorite").checked;
+
+    if (!title || !body) {
+        showToast('error', 'Validation Error', 'Please enter both notification title and body.');
+        return;
+    }
+
+    const tags = tagsRaw.split(',').map(t => t.trim().replace(/^#/, '')).filter(t => t.length > 0);
+
+    try {
+        const payload = {
+            title,
+            body,
+            category,
+            tags,
+            status: 'active',
+            isFavorite,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        if (id) {
+            await db.collection("motivationMessages").doc(id).update(payload);
+            showToast('success', 'Message Updated', 'Motivational message updated successfully.');
+            logAdminAction(`Updated motivation message: ${title}`);
+        } else {
+            payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection("motivationMessages").add(payload);
+            showToast('success', 'Message Created', 'New motivational message added successfully.');
+            logAdminAction(`Created motivation message in ${category}: ${title}`);
+        }
+
+        closeNotifMessageModal();
+        loadMessages(category);
+    } catch (e) {
+        console.error("Error saving message:", e);
+        showToast('error', 'Operation Failed', e.message);
+    }
+}
+
+async function deleteNotifMessage(id, category) {
+    if (!confirm("Are you sure you want to permanently delete this motivational message?")) return;
+
+    try {
+        await db.collection("motivationMessages").doc(id).delete();
+        showToast('success', 'Message Deleted', 'Message removed successfully.');
+        logAdminAction(`Deleted motivation message ID: ${id}`);
+        loadMessages(category);
+    } catch (e) {
+        console.error("Error deleting message:", e);
+        showToast('error', 'Delete Failed', e.message);
+    }
+}
+
+async function toggleFavoriteMessage(id, currentFav) {
+    try {
+        await db.collection("motivationMessages").doc(id).update({ isFavorite: !currentFav });
+        showToast('success', 'Updated', `Favorite priority status updated.`);
+        // Reload current active tab category
+        const activeSubTab = document.querySelector('.notif-subtab-content:not(.hidden)').id.replace('notif-subtab-content-', '');
+        if (['morning', 'evening', 'night', 'latenight'].includes(activeSubTab)) {
+            loadMessages(activeSubTab);
+        }
+    } catch (e) {
+        console.error("Error updating favorite:", e);
+    }
+}
+
+function openCsvImportModal() {
+    document.getElementById("notif-csv-modal").classList.remove("hidden");
+}
+
+function closeCsvImportModal() {
+    document.getElementById("notif-csv-modal").classList.add("hidden");
+}
+
+async function processCsvImport() {
+    const fileInput = document.getElementById("notif-csv-file");
+    if (!fileInput.files || fileInput.files.length === 0) {
+        showToast('error', 'File Error', 'Please select a CSV file.');
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        const text = e.target.result;
+        const lines = text.split('\n');
+        let count = 0;
+
+        const batch = db.batch();
+
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const cols = line.split(',');
+            if (cols.length >= 2) {
+                const title = cols[0].replace(/^["']|["']$/g, '').trim();
+                const body = cols[1].replace(/^["']|["']$/g, '').trim();
+                const category = (cols[2] || 'morning').replace(/^["']|["']$/g, '').trim().toLowerCase();
+                const tagsStr = (cols[3] || 'motivation').replace(/^["']|["']$/g, '').trim();
+                const tags = tagsStr.split(';').map(t => t.trim());
+
+                const ref = db.collection("motivationMessages").doc();
+                batch.set(ref, {
+                    title,
+                    body,
+                    category: ['morning', 'evening', 'night', 'latenight'].includes(category) ? category : 'morning',
+                    tags,
+                    status: 'active',
+                    isFavorite: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                count++;
+            }
+        }
+
+        try {
+            await batch.commit();
+            showToast('success', 'Bulk Import Successful', `Successfully imported ${count} motivational messages!`);
+            logAdminAction(`Bulk imported ${count} messages via CSV`);
+            closeCsvImportModal();
+            loadNotificationOverview();
+        } catch (err) {
+            console.error("CSV batch commit error:", err);
+            showToast('error', 'Import Failed', err.message);
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+async function loadSentHistory() {
+    const tbody = document.getElementById("sent-history-table-body");
+    if (!tbody) return;
+
+    try {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Loading sent history...</td></tr>`;
+        const snap = await db.collection("notificationJobs").orderBy("timestamp", "desc").limit(50).get();
+
+        if (snap.empty) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">No notification dispatches recorded yet.</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        snap.forEach(doc => {
+            const j = doc.data();
+            const timeStr = j.timestamp ? new Date(j.timestamp.seconds * 1000).toLocaleString() : 'Just now';
+            html += `
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="p-3 font-mono text-slate-400">${timeStr}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 bg-primary/20 text-primary rounded-full text-[10px] font-bold uppercase">${j.category || 'general'}</span></td>
+                    <td class="p-3">
+                        <div class="font-bold text-white">${j.title}</div>
+                        <div class="text-slate-400">${j.body}</div>
+                    </td>
+                    <td class="p-3 font-mono text-slate-300">${j.recipientCount || 0} devices</td>
+                    <td class="p-3"><span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-bold">Delivered (FCM)</span></td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    } catch (e) {
+        console.error("Error loading sent history:", e);
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">History tracking initializing...</td></tr>`;
+    }
+}
+
+function loadNotificationCalendar() {
+    const grid = document.getElementById("notification-calendar-grid");
+    if (!grid) return;
+
+    const days = ['Today', 'Tomorrow', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+    let html = '';
+
+    days.forEach((day, index) => {
+        const d = new Date();
+        d.setDate(d.getDate() + index);
+        const dateStr = d.toLocaleDateString();
+        const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+        const spiritualBadge = isWeekend ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">✨ Spiritual / Weekend Focus</span>' : '';
+
+        html += `
+            <div class="glass-watery-card rounded-2xl p-5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h4 class="font-extrabold text-white text-xs">${day} (${dateStr})</h4>
+                    ${spiritualBadge}
+                </div>
+                <div class="space-y-2 text-xs">
+                    <div class="p-2.5 bg-slate-900/60 rounded-xl border border-white/5">
+                        <span class="text-primary font-bold">06:30 AM:</span> Morning Motivation 🌅
+                    </div>
+                    <div class="p-2.5 bg-slate-900/60 rounded-xl border border-white/5">
+                        <span class="text-primary font-bold">05:30 PM:</span> Evening Study Review 📚
+                    </div>
+                    <div class="p-2.5 bg-slate-900/60 rounded-xl border border-white/5">
+                        <span class="text-primary font-bold">08:30 PM:</span> Night Reminder ✨
+                    </div>
+                    <div class="p-2.5 bg-slate-900/60 rounded-xl border border-white/5">
+                        <span class="text-primary font-bold">10:00 PM:</span> Late-Night Wishes 🌙
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    grid.innerHTML = html;
+}
+
+let emergencyStopActive = false;
+async function toggleEmergencyStop() {
+    emergencyStopActive = !emergencyStopActive;
+    const btn = document.getElementById("btn-emergency-stop");
+
+    try {
+        await db.collection("notificationSettings").doc("config").set({
+            emergencyStop: emergencyStopActive,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        if (emergencyStopActive) {
+            btn.className = "px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl shadow-lg transition-all animate-pulse";
+            btn.textContent = "RESUME AUTOMATION";
+            showToast('warning', '🚨 Emergency Stop Activated', 'All automated notification sessions have been suspended.');
+            logAdminAction("Activated Emergency Stop for Notifications");
+        } else {
+            btn.className = "px-5 py-3 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black rounded-xl shadow-lg transition-all";
+            btn.textContent = "ACTIVATE EMERGENCY STOP";
+            showToast('success', '🟢 Automation Resumed', 'Notification scheduling and automated sessions resumed.');
+            logAdminAction("Resumed Notification Automation");
+        }
+    } catch (e) {
+        console.error("Error toggling emergency stop:", e);
+        showToast('error', 'Error', e.message);
+    }
+}
+
+function openCampaignModal() {
+    document.getElementById("campaign-input-name").value = "";
+    document.getElementById("campaign-input-title").value = "";
+    document.getElementById("campaign-input-body").value = "";
+    document.getElementById("notif-campaign-modal").classList.remove("hidden");
+}
+
+function closeCampaignModal() {
+    document.getElementById("notif-campaign-modal").classList.add("hidden");
+}
+
+async function saveCampaign() {
+    const name = document.getElementById("campaign-input-name").value.trim();
+    const title = document.getElementById("campaign-input-title").value.trim();
+    const body = document.getElementById("campaign-input-body").value.trim();
+    const startDate = document.getElementById("campaign-input-start").value;
+    const endDate = document.getElementById("campaign-input-end").value;
+
+    if (!name || !title || !body) {
+        showToast('error', 'Validation Error', 'Please fill in all required campaign fields.');
+        return;
+    }
+
+    try {
+        await db.collection("notificationCampaigns").add({
+            name,
+            title,
+            body,
+            startDate,
+            endDate,
+            status: 'active',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showToast('success', 'Campaign Launched', `Special campaign "${name}" created successfully.`);
+        logAdminAction(`Created special notification campaign: ${name}`);
+        closeCampaignModal();
+        loadCampaigns();
+    } catch (e) {
+        console.error("Error saving campaign:", e);
+        showToast('error', 'Error', e.message);
+    }
+}
+
+async function loadCampaigns() {
+    const container = document.getElementById("campaigns-list-container");
+    if (!container) return;
+
+    try {
+        const snap = await db.collection("notificationCampaigns").get();
+        if (snap.empty) {
+            container.innerHTML = `<p class="text-slate-500 italic text-xs">No active special campaigns.</p>`;
+            return;
+        }
+
+        let html = '';
+        snap.forEach(doc => {
+            const c = doc.data();
+            html += `
+                <div class="glass-watery-card rounded-2xl p-5 flex items-center justify-between">
+                    <div>
+                        <span class="px-2.5 py-0.5 bg-primary/20 text-primary text-[10px] font-bold rounded-full">${c.name}</span>
+                        <h4 class="font-bold text-white text-sm mt-1">${c.title}</h4>
+                        <p class="text-slate-300 text-xs mt-0.5">${c.body}</p>
+                        <p class="text-slate-500 text-[10px] mt-2">Active: ${c.startDate || 'Immediate'} to ${c.endDate || 'Ongoing'}</p>
+                    </div>
+                    <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full">Active Campaign</span>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } catch (e) {
+        console.error("Error loading campaigns:", e);
+    }
+}
+

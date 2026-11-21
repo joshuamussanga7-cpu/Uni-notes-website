@@ -116,11 +116,46 @@ async function fetchLatestRelease() {
  * Render dynamic Store header elements on index.html
  */
 function renderStoreHeader(release) {
-    // Version Badge
+    const vName = release.versionName || '1.1.0';
+    const vCode = release.versionCode || 2;
+
+    // Version Badges
     const badgeEl = document.getElementById("store-version-badge");
     if (badgeEl) {
-        badgeEl.textContent = `v${release.versionName || '1.0'} (${release.versionCode || 1})`;
+        badgeEl.textContent = `v${vName} (${vCode})`;
         badgeEl.classList.remove("hidden");
+    }
+
+    const versionTextEl = document.getElementById("store-version-code");
+    if (versionTextEl) {
+        versionTextEl.textContent = `v${vName} (Build ${vCode})`;
+    }
+
+    const titleEl = document.getElementById("store-release-title");
+    if (titleEl) {
+        titleEl.textContent = `University Notes v${vName}`;
+    }
+
+    const dateEl = document.getElementById("store-release-date");
+    if (dateEl) {
+        const dateStr = release.publishedAt ? new Date(release.publishedAt.seconds * 1000).toLocaleDateString() : 'Live Production Build';
+        dateEl.textContent = `Published ${dateStr} • Build Code ${vCode}`;
+    }
+
+    // SDK Badges
+    const targetSdkEl = document.getElementById("store-target-sdk-badge");
+    if (targetSdkEl) {
+        targetSdkEl.textContent = release.targetSdk ? `Target ${release.targetSdk}` : "Target API 34";
+    }
+
+    const minSdkEl = document.getElementById("store-min-sdk-badge");
+    if (minSdkEl) {
+        minSdkEl.textContent = release.minSdk ? `Min ${release.minSdk}` : "Min API 24";
+    }
+
+    const jksEl = document.getElementById("store-jks-badge");
+    if (jksEl) {
+        jksEl.textContent = release.signingStatus ? release.signingStatus : "Signed via JKS";
     }
 
     // Size Label
@@ -136,7 +171,7 @@ function renderStoreHeader(release) {
     const downloadLink = document.getElementById("main-apk-download-btn");
     if (downloadLink && release.apkUrl) {
         downloadLink.href = release.apkUrl;
-        downloadLink.onclick = () => logDownloadEvent(release.versionCode || 1);
+        downloadLink.onclick = () => logDownloadEvent(vCode);
     }
 
     // SHA-256 Fingerprint Display

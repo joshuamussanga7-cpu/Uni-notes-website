@@ -181,6 +181,38 @@
                     <p id="store-sha256-text" class="text-xs font-mono text-emerald-400 break-all bg-slate-950 p-2 rounded-lg border border-slate-800">Verified Release Build</p>
                 </div>
 
+                <!-- Latest Release Play Store Details Card -->
+                <div id="latest-release-details-card" class="mt-6 p-6 bg-slate-900/90 border border-slate-800 rounded-[28px] max-w-2xl mx-auto text-left shadow-2xl">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4 mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-primary/20 text-primary rounded-xl flex items-center justify-center border border-primary/30 shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            </div>
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <h3 id="store-release-title" class="text-lg font-bold text-white">University Notes v1.1.0</h3>
+                                    <span id="store-jks-badge" class="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold rounded-full uppercase tracking-wider">Signed via JKS</span>
+                                </div>
+                                <p id="store-release-date" class="text-xs text-slate-400 mt-0.5">Published Build • Code 2</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-[11px] font-mono">
+                            <span id="store-target-sdk-badge" class="px-2.5 py-1 bg-slate-950 border border-slate-800 text-slate-300 rounded-lg">Target API 34</span>
+                            <span id="store-min-sdk-badge" class="px-2.5 py-1 bg-slate-950 border border-slate-800 text-slate-300 rounded-lg">Min API 24</span>
+                        </div>
+                    </div>
+
+                    <!-- Release Notes / What's New -->
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">What's New in this Release</h4>
+                        <div id="store-release-notes" class="text-xs text-slate-200 leading-relaxed font-medium bg-slate-950/80 p-4 rounded-2xl border border-white/5 space-y-1">
+                            <div><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30 mr-1">✨ New Feature</span> Full Custom App Store & Automated Play Console Inspection</div>
+                            <div><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mr-1">⚡ Performance</span> In-App Silent Auto-Updates & Fast PDF Reader</div>
+                            <div><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-400 border border-rose-500/30 mr-1">🔒 Security</span> Production Signed Keystore (`university_notes.jks`) & SHA-256 Checks</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Installation Assistant Trigger -->
                 <div class="mt-4 text-center">
                     <button onclick="openInstallAssistant()" class="text-xs text-slate-400 hover:text-primary transition-all underline flex items-center justify-center mx-auto space-x-1">

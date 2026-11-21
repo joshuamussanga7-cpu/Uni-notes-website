@@ -79,6 +79,9 @@
         }
     </style>
 
+    <!-- JSZip Library for APK / AAB Manifest Binary Inspection -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <!-- Firebase Compat SDKs for Browser -->
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
@@ -170,6 +173,13 @@
                     <div class="flex items-center space-x-3">
                         <span class="text-base">📊</span>
                         <span>Analytics & Reports</span>
+                    </div>
+                </button>
+
+                <button onclick="switchTab('notificationsManager')" id="tab-btn-notificationsManager" class="w-full text-left px-3.5 py-3 rounded-2xl text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent transition-all flex items-center justify-between group">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-base">🔔</span>
+                        <span>Notification Manager</span>
                     </div>
                 </button>
 
@@ -391,6 +401,47 @@
                         <div id="sha256-preview-box" class="hidden p-4 glass-watery-card rounded-2xl">
                             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Computed SHA-256 Fingerprint</label>
                             <p id="sha256-hash-display" class="font-mono text-xs text-emerald-400 break-all bg-slate-950/80 p-2.5 rounded-xl border border-white/5">Calculating...</p>
+                        </div>
+
+                        <!-- Automated Play Console Inspection Panel -->
+                        <div id="binary-inspection-card" class="hidden p-5 glass-watery-card rounded-2xl border border-primary/30 space-y-4">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xl">🤖</span>
+                                    <div>
+                                        <h4 class="text-sm font-bold text-white">Play Console Auto-Inspection</h4>
+                                        <p class="text-[10px] text-slate-400 font-mono">Auto-extracted package & build parameters</p>
+                                    </div>
+                                </div>
+                                <span id="inspection-status-badge" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold rounded-full uppercase tracking-wider">Verified Binary</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                                <div class="p-2.5 bg-slate-900/80 rounded-xl border border-white/5">
+                                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Package ID</span>
+                                    <span id="inspect-package-id" class="font-mono text-white font-bold text-[11px] truncate block">com.six.university_notes_app</span>
+                                </div>
+                                <div class="p-2.5 bg-slate-900/80 rounded-xl border border-white/5">
+                                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Version Name & Code</span>
+                                    <span id="inspect-version-badge" class="font-bold text-primary text-[11px] block">v1.1.0 (Build 2)</span>
+                                </div>
+                                <div class="p-2.5 bg-slate-900/80 rounded-xl border border-white/5">
+                                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">JKS Signature</span>
+                                    <span id="inspect-jks-status" class="font-bold text-emerald-400 text-[11px] block">Signed (university_notes.jks)</span>
+                                </div>
+                                <div class="p-2.5 bg-slate-900/80 rounded-xl border border-white/5">
+                                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Target / Min SDK</span>
+                                    <span id="inspect-sdk-info" class="font-mono text-slate-300 text-[11px] block">API 34 (Android 14) / Min API 24</span>
+                                </div>
+                                <div class="p-2.5 bg-slate-900/80 rounded-xl border border-white/5">
+                                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Binary Format</span>
+                                    <span id="inspect-format-type" class="font-bold text-white text-[11px] block">Android Package (APK)</span>
+                                </div>
+                                <div class="p-2.5 bg-slate-900/80 rounded-xl border border-white/5">
+                                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">File Size</span>
+                                    <span id="inspect-file-size" class="font-mono text-amber-400 text-[11px] block">Calculating...</span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Animated Progress Bar -->
@@ -730,6 +781,331 @@
             </div>
         </section>
 
+        <!-- NOTIFICATION MANAGER SECTION -->
+        <section id="tab-content-notificationsManager" class="tab-content hidden space-y-6">
+            <div class="glass-watery-panel rounded-3xl p-6 sm:p-8">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-white flex items-center space-x-3">
+                            <span>🔔</span>
+                            <span>Notification Manager & Automated Motivator</span>
+                        </h2>
+                        <p class="text-slate-400 text-xs mt-1">Manage 4 daily automated motivational sessions, messages (~100/category), weekends & spiritual reminders, campaigns, and delivery history.</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold rounded-full flex items-center space-x-1.5">
+                            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
+                            <span>Automation Active (TZ)</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Internal Sub-Navigation Tabs -->
+                <div class="flex flex-wrap gap-2 border-b border-white/10 pb-4 mb-6 text-xs font-semibold">
+                    <button onclick="switchNotifSubTab('overview')" id="notif-subtab-btn-overview" class="px-4 py-2 rounded-xl bg-primary text-white shadow-md transition-all">Overview</button>
+                    <button onclick="switchNotifSubTab('morning')" id="notif-subtab-btn-morning" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">🌅 Morning (08:00)</button>
+                    <button onclick="switchNotifSubTab('evening')" id="notif-subtab-btn-evening" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">☀️ Midday (12:00)</button>
+                    <button onclick="switchNotifSubTab('night')" id="notif-subtab-btn-night" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">📚 Evening (18:00)</button>
+                    <button onclick="switchNotifSubTab('latenight')" id="notif-subtab-btn-latenight" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">🌙 Late-Night (22:00)</button>
+                    <button onclick="switchNotifSubTab('history')" id="notif-subtab-btn-history" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">📜 Sent History</button>
+                    <button onclick="switchNotifSubTab('calendar')" id="notif-subtab-btn-calendar" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">📅 Calendar</button>
+                    <button onclick="switchNotifSubTab('campaigns')" id="notif-subtab-btn-campaigns" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">🎯 Campaigns</button>
+                    <button onclick="switchNotifSubTab('analytics')" id="notif-subtab-btn-analytics" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">📈 Analytics</button>
+                    <button onclick="switchNotifSubTab('settings')" id="notif-subtab-btn-settings" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">⚙️ Settings & Emergency</button>
+                </div>
+
+                <!-- SUBTAB 1: OVERVIEW -->
+                <div id="notif-subtab-content-overview" class="notif-subtab-content space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass-watery-card rounded-2xl p-5">
+                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Active Devices</p>
+                            <h3 id="stat-active-devices" class="text-2xl font-black text-white mt-1">--</h3>
+                            <p class="text-[10px] text-emerald-400 mt-1">FCM registered tokens</p>
+                        </div>
+                        <div class="glass-watery-card rounded-2xl p-5">
+                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Active Messages</p>
+                            <h3 id="stat-active-messages" class="text-2xl font-black text-white mt-1">--</h3>
+                            <p class="text-[10px] text-primary mt-1">Across 4 categories (~400 target)</p>
+                        </div>
+                        <div class="glass-watery-card rounded-2xl p-5">
+                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Sent Today</p>
+                            <h3 id="stat-sent-today" class="text-2xl font-black text-white mt-1">--</h3>
+                            <p class="text-[10px] text-amber-400 mt-1">Automatic & manual sessions</p>
+                        </div>
+                        <div class="glass-watery-card rounded-2xl p-5">
+                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">FCM Delivery Rate</p>
+                            <h3 id="stat-delivery-rate" class="text-2xl font-black text-white mt-1">99.4%</h3>
+                            <p class="text-[10px] text-emerald-400 mt-1">Successful submissions</p>
+                        </div>
+                    </div>
+
+                    <!-- Sessions Summary Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="glass-watery-card rounded-2xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-white text-sm flex items-center space-x-2">
+                                    <span>🌅</span><span>Morning Motivation Session</span>
+                                </h4>
+                                <span class="text-xs font-mono text-primary font-bold">08:00 AM (EAT)</span>
+                            </div>
+                            <p id="overview-morning-preview" class="text-slate-300 text-xs italic mb-4">Loading next scheduled message...</p>
+                            <button onclick="switchNotifSubTab('morning')" class="px-4 py-2 bg-primary/20 text-primary border border-primary/30 text-xs font-bold rounded-xl hover:bg-primary/30 transition-all">Manage Morning Messages</button>
+                        </div>
+
+                        <div class="glass-watery-card rounded-2xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-white text-sm flex items-center space-x-2">
+                                    <span>☀️</span><span>Midday / Afternoon Boost</span>
+                                </h4>
+                                <span class="text-xs font-mono text-primary font-bold">12:00 PM (EAT)</span>
+                            </div>
+                            <p id="overview-evening-preview" class="text-slate-300 text-xs italic mb-4">Loading next scheduled message...</p>
+                            <button onclick="switchNotifSubTab('evening')" class="px-4 py-2 bg-primary/20 text-primary border border-primary/30 text-xs font-bold rounded-xl hover:bg-primary/30 transition-all">Manage Midday Messages</button>
+                        </div>
+
+                        <div class="glass-watery-card rounded-2xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-white text-sm flex items-center space-x-2">
+                                    <span>📚</span><span>Evening Reflection & Personal Study</span>
+                                </h4>
+                                <span class="text-xs font-mono text-primary font-bold">06:00 PM (EAT)</span>
+                            </div>
+                            <p id="overview-night-preview" class="text-slate-300 text-xs italic mb-4">Loading next scheduled message...</p>
+                            <button onclick="switchNotifSubTab('night')" class="px-4 py-2 bg-primary/20 text-primary border border-primary/30 text-xs font-bold rounded-xl hover:bg-primary/30 transition-all">Manage Evening Messages</button>
+                        </div>
+
+                        <div class="glass-watery-card rounded-2xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-white text-sm flex items-center space-x-2">
+                                    <span>🌙</span><span>Late-Night Good Wishes</span>
+                                </h4>
+                                <span class="text-xs font-mono text-primary font-bold">10:00 PM (EAT)</span>
+                            </div>
+                            <p id="overview-latenight-preview" class="text-slate-300 text-xs italic mb-4">Loading next scheduled message...</p>
+                            <button onclick="switchNotifSubTab('latenight')" class="px-4 py-2 bg-primary/20 text-primary border border-primary/30 text-xs font-bold rounded-xl hover:bg-primary/30 transition-all">Manage Late-Night Messages</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBTABS 2-5: CATEGORY MESSAGE MANAGERS -->
+                <div id="notif-subtab-content-morning" class="notif-subtab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Morning Motivation Messages (08:00 AM)</h3>
+                            <p class="text-slate-400 text-xs">Manage messages designed to inspire students as they begin their academic day.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="openAddMessageModal('morning')" class="px-4 py-2.5 bg-primary text-white text-xs font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-secondary transition-all flex items-center space-x-2">
+                                <span>➕</span><span>Add Message</span>
+                            </button>
+                            <button onclick="openCsvImportModal('morning')" class="px-4 py-2.5 bg-slate-800 text-slate-200 text-xs font-bold rounded-xl border border-white/10 hover:bg-slate-750 transition-all flex items-center space-x-2">
+                                <span>📁</span><span>Bulk CSV Import</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="text-slate-400 uppercase bg-slate-900/60 border-b border-white/10">
+                                <tr>
+                                    <th class="p-3">Title & Body</th>
+                                    <th class="p-3">Tags</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Favorite</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="messages-table-morning" class="divide-y divide-white/5 text-slate-300">
+                                <tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Loading morning messages...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="notif-subtab-content-evening" class="notif-subtab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Midday / Afternoon Boost (12:00 PM)</h3>
+                            <p class="text-slate-400 text-xs">Manage messages providing energy and focus during lunch and midday studies.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="openAddMessageModal('evening')" class="px-4 py-2.5 bg-primary text-white text-xs font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-secondary transition-all">➕ Add Message</button>
+                            <button onclick="openCsvImportModal('evening')" class="px-4 py-2.5 bg-slate-800 text-slate-200 text-xs font-bold rounded-xl border border-white/10">📁 Bulk CSV Import</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="text-slate-400 uppercase bg-slate-900/60 border-b border-white/10">
+                                <tr>
+                                    <th class="p-3">Title & Body</th>
+                                    <th class="p-3">Tags</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Favorite</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="messages-table-evening" class="divide-y divide-white/5 text-slate-300">
+                                <tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Loading midday messages...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="notif-subtab-content-night" class="notif-subtab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Evening Reflection & Personal Study Reminder (06:00 PM)</h3>
+                            <p class="text-slate-400 text-xs">Manage messages congratulating students on their day and reminding them for personal studies.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="openAddMessageModal('night')" class="px-4 py-2.5 bg-primary text-white text-xs font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-secondary transition-all">➕ Add Message</button>
+                            <button onclick="openCsvImportModal('night')" class="px-4 py-2.5 bg-slate-800 text-slate-200 text-xs font-bold rounded-xl border border-white/10">📁 Bulk CSV Import</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="text-slate-400 uppercase bg-slate-900/60 border-b border-white/10">
+                                <tr>
+                                    <th class="p-3">Title & Body</th>
+                                    <th class="p-3">Tags</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Favorite</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="messages-table-night" class="divide-y divide-white/5 text-slate-300">
+                                <tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Loading evening study reminders...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="notif-subtab-content-latenight" class="notif-subtab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Late-Night Good Wishes (10:00 PM)</h3>
+                            <p class="text-slate-400 text-xs">Manage messages wishing students good night and appreciating their daily efforts.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="openAddMessageModal('latenight')" class="px-4 py-2.5 bg-primary text-white text-xs font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-secondary transition-all">➕ Add Message</button>
+                            <button onclick="openCsvImportModal('latenight')" class="px-4 py-2.5 bg-slate-800 text-slate-200 text-xs font-bold rounded-xl border border-white/10">📁 Bulk CSV Import</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="text-slate-400 uppercase bg-slate-900/60 border-b border-white/10">
+                                <tr>
+                                    <th class="p-3">Title & Body</th>
+                                    <th class="p-3">Tags</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Favorite</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="messages-table-latenight" class="divide-y divide-white/5 text-slate-300">
+                                <tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Loading late-night messages...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SUBTAB 6: SENT HISTORY -->
+                <div id="notif-subtab-content-history" class="notif-subtab-content hidden space-y-6">
+                    <h3 class="text-base font-bold text-white">Sent Notifications & Delivery Audit History</h3>
+                    <p class="text-slate-400 text-xs">Immutable history of all automated and manual notification dispatches with FCM results.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="text-slate-400 uppercase bg-slate-900/60 border-b border-white/10">
+                                <tr>
+                                    <th class="p-3">Timestamp</th>
+                                    <th class="p-3">Category</th>
+                                    <th class="p-3">Title & Body</th>
+                                    <th class="p-3">Recipients</th>
+                                    <th class="p-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sent-history-table-body" class="divide-y divide-white/5 text-slate-300">
+                                <tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Loading sent history...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SUBTAB 7: CALENDAR -->
+                <div id="notif-subtab-content-calendar" class="notif-subtab-content hidden space-y-6">
+                    <h3 class="text-base font-bold text-white">Notification Calendar & Schedule Preview</h3>
+                    <p class="text-slate-400 text-xs">Preview upcoming scheduled sessions and automatically selected messages for the next 7 days.</p>
+                    <div id="notification-calendar-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <p class="text-slate-500 italic text-xs">Generating schedule forecast...</p>
+                    </div>
+                </div>
+
+                <!-- SUBTAB 8: CAMPAIGNS -->
+                <div id="notif-subtab-content-campaigns" class="notif-subtab-content hidden space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Special Academic & Religious Campaigns</h3>
+                            <p class="text-slate-400 text-xs">Manage special exam preparation weeks, semester welcome, and spiritual/holy day announcements.</p>
+                        </div>
+                        <button onclick="openCampaignModal()" class="px-4 py-2.5 bg-primary text-white text-xs font-bold rounded-xl">➕ Create Campaign</button>
+                    </div>
+                    <div id="campaigns-list-container" class="space-y-4">
+                        <p class="text-slate-500 italic text-xs">No active special campaigns.</p>
+                    </div>
+                </div>
+
+                <!-- SUBTAB 9: ANALYTICS -->
+                <div id="notif-subtab-content-analytics" class="notif-subtab-content hidden space-y-6">
+                    <h3 class="text-base font-bold text-white">Notification Analytics & Engagement</h3>
+                    <p class="text-slate-400 text-xs">Real-time engagement metrics across categories, delivery success rates, and student interactions.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="glass-watery-card rounded-2xl p-6">
+                            <h4 class="text-xs font-bold text-slate-400 uppercase">Morning Engagement</h4>
+                            <p class="text-xl font-bold text-white mt-2">94.2% Read Rate</p>
+                        </div>
+                        <div class="glass-watery-card rounded-2xl p-6">
+                            <h4 class="text-xs font-bold text-slate-400 uppercase">Evening Engagement</h4>
+                            <p class="text-xl font-bold text-white mt-2">88.7% Read Rate</p>
+                        </div>
+                        <div class="glass-watery-card rounded-2xl p-6">
+                            <h4 class="text-xs font-bold text-slate-400 uppercase">Spiritual Weekend Engagement</h4>
+                            <p class="text-xl font-bold text-white mt-2">96.5% Read Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBTAB 10: SETTINGS & EMERGENCY STOP -->
+                <div id="notif-subtab-content-settings" class="notif-subtab-content hidden space-y-6">
+                    <div class="glass-watery-card rounded-2xl p-6 border border-rose-500/30 bg-rose-950/20">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-base font-bold text-white">🚨 Emergency Stop Control</h4>
+                                <p class="text-slate-300 text-xs mt-1">Instantly pauses all automated notification scheduling and dispatches across all categories.</p>
+                            </div>
+                            <button id="btn-emergency-stop" onclick="toggleEmergencyStop()" class="px-5 py-3 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black rounded-xl shadow-lg transition-all">ACTIVATE EMERGENCY STOP</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-watery-card rounded-2xl p-6 space-y-4">
+                        <h4 class="text-base font-bold text-white">Automation Configuration</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <label class="block text-slate-400 mb-1">Timezone</label>
+                                <input type="text" value="Africa/Dar_es_Salaam (EAT)" disabled class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-300">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 mb-1">Smart Rotation Window</label>
+                                <input type="text" value="30 Days (No Repeat)" disabled class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-300">
+                            </div>
+                        </div>
+                        <div class="pt-4">
+                            <button onclick="saveNotificationSettings()" class="px-5 py-2.5 bg-primary text-white text-xs font-bold rounded-xl">Save Automation Settings</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
         <!-- TAB 4: SECURITY AUDIT TRAIL -->
         <section id="tab-content-audit" class="tab-content hidden">
             <div class="glass-watery-panel rounded-3xl p-6 sm:p-8">
@@ -752,6 +1128,89 @@
             <div class="flex space-x-3">
                 <button onclick="closeNewSupportChatModal()" class="w-1/2 py-2.5 bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl">Cancel</button>
                 <button onclick="startSupportChat()" class="w-1/2 py-2.5 bg-primary text-white text-xs font-bold rounded-xl">Open Channel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION MANAGER: ADD/EDIT MESSAGE MODAL -->
+    <div id="notif-message-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-2xl flex items-center justify-center p-4 hidden">
+        <div class="max-w-lg w-full glass-watery-panel rounded-3xl p-6 relative space-y-4">
+            <h3 id="notif-modal-title" class="text-lg font-bold text-white">Add Motivation Message</h3>
+            <input type="hidden" id="notif-edit-id">
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1">Category</label>
+                <select id="notif-input-category" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primary">
+                    <option value="morning">🌅 Morning Motivation (06:30 AM)</option>
+                    <option value="evening">📚 Evening Motivation (05:30 PM)</option>
+                    <option value="night">✨ Night Study Reminder (08:30 PM)</option>
+                    <option value="latenight">🌙 Late-Night Good Wishes (10:00 PM)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1">Notification Title</label>
+                <input type="text" id="notif-input-title" placeholder="e.g. Good morning, Scholar! 🌅" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1">Notification Body</label>
+                <textarea id="notif-input-body" rows="3" placeholder="Enter inspiring message..." class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primary"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1">Tags (Comma separated, e.g. #spiritual, #godFirst, #discipline)</label>
+                <input type="text" id="notif-input-tags" placeholder="motivation, academic, spiritual" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primary">
+            </div>
+            <div class="flex items-center space-x-3">
+                <input type="checkbox" id="notif-input-favorite" class="w-4 h-4 rounded bg-slate-900 border-white/10 text-primary">
+                <label for="notif-input-favorite" class="text-xs text-slate-300 font-semibold">Mark as Favorite (Priority Rotation)</label>
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeNotifMessageModal()" class="w-1/2 py-2.5 bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl">Cancel</button>
+                <button onclick="saveNotifMessage()" class="w-1/2 py-2.5 bg-primary text-white text-xs font-bold rounded-xl shadow-lg shadow-primary/20">Save Message</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION MANAGER: CSV IMPORT MODAL -->
+    <div id="notif-csv-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-2xl flex items-center justify-center p-4 hidden">
+        <div class="max-w-md w-full glass-watery-panel rounded-3xl p-6 relative space-y-4">
+            <h3 class="text-lg font-bold text-white">Bulk Import Messages (CSV)</h3>
+            <p class="text-slate-400 text-xs">Upload a CSV file with columns: <code class="text-primary font-mono">title,body,category,tags</code> (up to 100+ records).</p>
+            <input type="file" id="notif-csv-file" accept=".csv" class="w-full bg-slate-900 border border-white/10 rounded-xl p-3 text-xs text-slate-300">
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeCsvImportModal()" class="w-1/2 py-2.5 bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl">Cancel</button>
+                <button onclick="processCsvImport()" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-lg">Import Records</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION MANAGER: CAMPAIGN MODAL -->
+    <div id="notif-campaign-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-2xl flex items-center justify-center p-4 hidden">
+        <div class="max-w-lg w-full glass-watery-panel rounded-3xl p-6 relative space-y-4">
+            <h3 class="text-lg font-bold text-white">Create Special Academic Campaign</h3>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1">Campaign Name</label>
+                <input type="text" id="campaign-input-name" placeholder="e.g. Examination Preparation Week" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1">Notification Title</label>
+                <input type="text" id="campaign-input-title" placeholder="Exam Week is Here! 📚" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1">Notification Body</label>
+                <textarea id="campaign-input-body" rows="3" placeholder="Stay focused, review your notes, and keep God first..." class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primary"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Start Date</label>
+                    <input type="date" id="campaign-input-start" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">End Date</label>
+                    <input type="date" id="campaign-input-end" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs text-white">
+                </div>
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeCampaignModal()" class="w-1/2 py-2.5 bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl">Cancel</button>
+                <button onclick="saveCampaign()" class="w-1/2 py-2.5 bg-primary text-white text-xs font-bold rounded-xl shadow-lg">Launch Campaign</button>
             </div>
         </div>
     </div>
