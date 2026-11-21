@@ -2203,24 +2203,38 @@ async function loadCoursesForBroadcast() {
     const select = document.getElementById("broadcast-course");
     if (!select) return;
 
+    // Official University Notes courses
+    const officialCourses = [
+        "Bachelor of Science in Information Technology (BSc IT)",
+        "Bachelor of Science in Nursing",
+        "Bachelor of Accounting and Finance (BAF)",
+        "Bachelor of Business Administration",
+        "Bachelor of Science with Education",
+        "Bachelor of Arts with Education",
+        "Bachelor of Commerce with Education",
+        "Bachelor of Arts in Theology",
+        "Bachelor of Health Services Management (BHSM)"
+    ];
+
+    const coursesSet = new Set(officialCourses);
+
     try {
         const snap = await db.collection("users").get();
-        const coursesSet = new Set();
         snap.forEach(doc => {
             const data = doc.data();
             if (data.courseOfStudy) {
                 coursesSet.add(data.courseOfStudy.trim());
             }
         });
-
-        let html = '<option value="All">All Courses</option>';
-        Array.from(coursesSet).sort().forEach(course => {
-            html += `<option value="${course}">${course}</option>`;
-        });
-        select.innerHTML = html;
     } catch (e) {
-        console.error("Error loading courses for broadcast:", e);
+        console.error("Error loading courses from database:", e);
     }
+
+    let html = '<option value="All">All Courses</option>';
+    Array.from(coursesSet).sort().forEach(course => {
+        html += `<option value="${course}">${course}</option>`;
+    });
+    select.innerHTML = html;
 }
 
 let presetMessagesCache = {};
