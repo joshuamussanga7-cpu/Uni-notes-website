@@ -1783,19 +1783,25 @@ async function loadSentHistory() {
     }
 }
 
-function loadNotificationCalendar() {
+async function loadNotificationCalendar() {
     const grid = document.getElementById("notification-calendar-grid");
     if (!grid) return;
 
     const days = ['Today', 'Tomorrow', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
     let html = '';
 
-    days.forEach((day, index) => {
+    for (let index = 0; index < days.length; index++) {
+        const day = days[index];
         const d = new Date();
         d.setDate(d.getDate() + index);
         const dateStr = d.toLocaleDateString();
         const isWeekend = d.getDay() === 0 || d.getDay() === 6;
         const spiritualBadge = isWeekend ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">✨ Spiritual / Weekend Focus</span>' : '';
+
+        const morningMsg = await getRandomMessageForCategory('morning');
+        const middayMsg = await getRandomMessageForCategory('evening');
+        const eveningMsg = await getRandomMessageForCategory('night');
+        const latenightMsg = await getRandomMessageForCategory('latenight');
 
         html += `
             <div class="glass-watery-card rounded-2xl p-5 space-y-3">
@@ -1803,24 +1809,66 @@ function loadNotificationCalendar() {
                     <h4 class="font-extrabold text-white text-xs">${day} (${dateStr})</h4>
                     ${spiritualBadge}
                 </div>
-                <div class="space-y-2 text-xs">
-                    <div class="p-2.5 bg-slate-900/60 rounded-xl border border-white/5">
-                        <span class="text-primary font-bold">06:30 AM:</span> Morning Motivation 🌅
+                <div class="space-y-3 text-xs">
+                    <div id="cal-slot-morning-${index}" class="p-3 bg-slate-900/80 rounded-xl border border-white/5 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-primary font-bold">08:00 AM: Morning 🌅</span>
+                            <button onclick="shuffleCalendarMessage('morning', 'cal-slot-morning-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
+                        </div>
+                        <p class="text-slate-300 text-[11px] italic">"${morningMsg ? morningMsg.title : 'No message configured'}"</p>
                     </div>
-                    <div class="p-2.5 bg-slate-900/60 rounded-xl border border-white/5">
-                        <span class="text-primary font-bold">05:30 PM:</span> Evening Study Review 📚
+
+                    <div id="cal-slot-midday-${index}" class="p-3 bg-slate-900/80 rounded-xl border border-white/5 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-primary font-bold">12:00 PM: Midday ☀️</span>
+                            <button onclick="shuffleCalendarMessage('evening', 'cal-slot-midday-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
+                        </div>
+                        <p class="text-slate-300 text-[11px] italic">"${middayMsg ? middayMsg.title : 'No message configured'}"</p>
                     </div>
-                    <div class="p-2.5 bg-slate-900/60 rounded-xl border border-white/5">
-                        <span class="text-primary font-bold">08:30 PM:</span> Night Reminder ✨
+
+                    <div id="cal-slot-evening-${index}" class="p-3 bg-slate-900/80 rounded-xl border border-white/5 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-primary font-bold">06:00 PM: Evening 📚</span>
+                            <button onclick="shuffleCalendarMessage('night', 'cal-slot-evening-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
+                        </div>
+                        <p class="text-slate-300 text-[11px] italic">"${eveningMsg ? eveningMsg.title : 'No message configured'}"</p>
                     </div>
-                    <div class="p-2.5 bg-slate-900/60 rounded-xl border border-white/5">
-                        <span class="text-primary font-bold">10:00 PM:</span> Late-Night Wishes 🌙
+
+                    <div id="cal-slot-latenight-${index}" class="p-3 bg-slate-900/80 rounded-xl border border-white/5 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-primary font-bold">10:00 PM: Late-Night 🌙</span>
+                            <button onclick="shuffleCalendarMessage('latenight', 'cal-slot-latenight-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
+                        </div>
+                        <p class="text-slate-300 text-[11px] italic">"${latenightMsg ? latenightMsg.title : 'No message configured'}"</p>
                     </div>
                 </div>
             </div>
         `;
-    });
+    }
     grid.innerHTML = html;
+}
+
+async function getRandomMessageForCategory(category) {
+    try {
+        const snap = await db.collection("motivationMessages").where("category", "==", category).get();
+        if (snap.empty) return null;
+        const docs = snap.docs;
+        const randomDoc = docs[Math.floor(Math.random() * docs.length)];
+        return randomDoc.data();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function shuffleCalendarMessage(category, elementId) {
+    const container = document.getElementById(elementId);
+    if (!container) return;
+    const msg = await getRandomMessageForCategory(category);
+    const p = container.querySelector("p");
+    if (p && msg) {
+        p.textContent = `"${msg.title}"`;
+        showToast('success', 'Message Shuffled', `New message loaded for ${category} session.`);
+    }
 }
 
 let emergencyStopActive = false;
