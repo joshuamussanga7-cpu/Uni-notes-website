@@ -2022,6 +2022,23 @@ async function sendTargetedBroadcast() {
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
 
+        // 3. Record in notificationJobs for Sent History & Analytics
+        const usersSnap = await db.collection("users").get();
+        let recipientCount = 0;
+        usersSnap.forEach(doc => {
+            if (doc.data().fcmToken) recipientCount++;
+        });
+
+        await db.collection("notificationJobs").add({
+            messageId: notificationId,
+            category: 'manual_broadcast',
+            title: title,
+            body: message,
+            recipientCount: recipientCount,
+            status: 'submitted',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
         showToast('success', 'Broadcast Sent', 'Targeted announcement published and queued for push delivery.');
         logAdminAction(`Sent targeted broadcast notification: ${title}`);
 
