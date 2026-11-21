@@ -1437,7 +1437,7 @@ function switchNotifSubTab(subTabName) {
 
                 // Load data on demand
                 if (t === 'overview') loadNotificationOverview();
-                else if (t === 'broadcast') {}
+                else if (t === 'broadcast') { loadCoursesForBroadcast(); loadPresetMessagesForBroadcast(); }
                 else if (t === 'morning') loadMessages('morning');
                 else if (t === 'evening') loadMessages('evening');
                 else if (t === 'night') loadMessages('night');
@@ -2194,5 +2194,61 @@ async function loadReligiousMessages() {
         console.error("Error loading religious messages:", e);
         tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-rose-400">Failed to load religious messages.</td></tr>`;
     }
+}
+
+/**
+ * Live Courses & Preset Messages for Manual Broadcast
+ */
+async function loadCoursesForBroadcast() {
+    const select = document.getElementById("broadcast-course");
+    if (!select) return;
+
+    try {
+        const snap = await db.collection("users").get();
+        const coursesSet = new Set();
+        snap.forEach(doc => {
+            const data = doc.data();
+            if (data.courseOfStudy) {
+                coursesSet.add(data.courseOfStudy.trim());
+            }
+        });
+
+        let html = '<option value="All">All Courses</option>';
+        Array.from(coursesSet).sort().forEach(course => {
+            html += `<option value="${course}">${course}</option>`;
+        });
+        select.innerHTML = html;
+    } catch (e) {
+        console.error("Error loading courses for broadcast:", e);
+    }
+}
+
+let presetMessagesCache = {};
+async function loadPresetMessagesForBroadcast() {
+    const select = document.getElementById("broadcast-preset-message");
+    if (!select) return;
+
+    try {
+        const snap = await db.collection("motivationMessages").get();
+        presetMessagesCache = {};
+        let html = '<option value="">-- Choose an existing message to auto-fill --</option>';
+
+        snap.forEach(doc => {
+            const m = doc.data();
+            presetMessagesCache[doc.id] = m;
+            html += `<option value="${doc.id}">[${m.category.toUpperCase()}] ${m.title}</option>`;
+        });
+        select.innerHTML = html;
+    } catch (e) {
+        console.error("Error loading preset messages:", e);
+    }
+}
+
+function fillBroadcastFromPreset(messageId) {
+    if (!messageId || !presetMessagesCache[messageId]) return;
+    const m = presetMessagesCache[messageId];
+    document.getElementById("broadcast-title").value = m.title || "";
+    document.getElementById("broadcast-message").value = m.body || "";
+    showToast('info', 'Preset Loaded', `Auto-filled from "${m.title}"`);
 }
 

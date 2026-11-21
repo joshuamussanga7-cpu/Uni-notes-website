@@ -962,9 +962,19 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-semibold text-slate-300 mb-1">Target Course (Optional)</label>
-                                <input type="text" id="broadcast-course" placeholder="e.g. BSc Computer Science" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary">
+                                <label class="block font-semibold text-slate-300 mb-1">Target Course (Live)</label>
+                                <select id="broadcast-course" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary">
+                                    <option value="All">All Courses</option>
+                                </select>
                             </div>
+                        </div>
+
+                        <!-- Quick Select Existing Message -->
+                        <div class="p-4 bg-slate-900/60 rounded-2xl border border-white/5 space-y-2">
+                            <label class="block font-semibold text-slate-300 text-xs">Quick Select from Existing Motivation Messages (Optional)</label>
+                            <select id="broadcast-preset-message" onchange="fillBroadcastFromPreset(this.value)" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primary">
+                                <option value="">-- Choose an existing message to auto-fill --</option>
+                            </select>
                         </div>
 
                         <div>
