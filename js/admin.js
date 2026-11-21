@@ -1814,21 +1814,6 @@ async function loadNotificationCalendar() {
         const day = days[index];
         const d = new Date();
         d.setDate(d.getDate() + index);
-        const dateStr = d.toLocaleDateString();
-        const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-        const spiritualBadge = isWeekend ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">✨ Spiritual / Weekend Focus</span>' : '';
-
-async function loadNotificationCalendar() {
-    const grid = document.getElementById("notification-calendar-grid");
-    if (!grid) return;
-
-    const days = ['Today', 'Tomorrow', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
-    let html = '';
-
-    for (let index = 0; index < days.length; index++) {
-        const day = days[index];
-        const d = new Date();
-        d.setDate(d.getDate() + index);
         const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const dateStr = d.toLocaleDateString();
         const isWeekend = d.getDay() === 0 || d.getDay() === 6;
