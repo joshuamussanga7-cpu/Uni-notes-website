@@ -1487,11 +1487,11 @@ async function loadMessages(category) {
     if (!tbody) return;
 
     try {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Loading ${category} messages...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 italic">Loading ${category} messages...</td></tr>`;
         const snap = await db.collection("motivationMessages").where("category", "==", category).get();
 
         if (snap.empty) {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">No messages found in ${category}. Click 'Add Message' or 'Bulk CSV Import' to begin.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 italic">No messages found in ${category}. Click 'Add Message' or 'Bulk CSV Import' to begin.</td></tr>`;
             return;
         }
 
@@ -1506,6 +1506,9 @@ async function loadMessages(category) {
 
             html += `
                 <tr class="hover:bg-white/5 transition-colors">
+                    <td class="p-3">
+                        <input type="checkbox" class="message-checkbox-${category} w-4 h-4 rounded bg-slate-900 border-white/10 text-primary" value="${doc.id}">
+                    </td>
                     <td class="p-3">
                         <div class="font-bold text-white">${m.title}</div>
                         <div class="text-slate-400 mt-0.5">${m.body}</div>
@@ -1525,7 +1528,38 @@ async function loadMessages(category) {
         tbody.innerHTML = html;
     } catch (e) {
         console.error(`Error loading ${category} messages:`, e);
-        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-400">Failed to load messages. Check Firestore permissions.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400">Failed to load messages. Check Firestore permissions.</td></tr>`;
+    }
+}
+
+function toggleSelectAllMessages(category, isChecked) {
+    const checkboxes = document.querySelectorAll(`.message-checkbox-${category}`);
+    checkboxes.forEach(cb => cb.checked = isChecked);
+}
+
+async function deleteSelectedMessages(category) {
+    const checkboxes = document.querySelectorAll(`.message-checkbox-${category}:checked`);
+    if (checkboxes.length === 0) {
+        showToast('warning', 'Selection Required', 'Please select at least one message to delete.');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to permanently delete ${checkboxes.length} selected motivational messages?`)) return;
+
+    try {
+        const batch = db.batch();
+        checkboxes.forEach(cb => {
+            const ref = db.collection("motivationMessages").doc(cb.value);
+            batch.delete(ref);
+        });
+
+        await batch.commit();
+        showToast('success', 'Batch Deleted', `Successfully deleted ${checkboxes.length} motivational messages.`);
+        logAdminAction(`Deleted batch of ${checkboxes.length} messages from ${category}`);
+        loadMessages(category);
+    } catch (e) {
+        console.error("Error deleting selected batch:", e);
+        showToast('error', 'Batch Delete Failed', e.message);
     }
 }
 
