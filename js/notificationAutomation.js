@@ -34,7 +34,7 @@ class NotificationAutomationEngine {
     async selectEligibleMessage(category) {
         try {
             const now = new Date();
-            const isWeekend = now.getDay() === 0 || now.getDay() === 6; // Sunday or Saturday
+            const dayOfWeek = now.getDay(); // 0: Sun, 5: Fri, 6: Sat
 
             // Fetch active messages for category
             let query = this.db.collection("motivationMessages")
@@ -49,14 +49,16 @@ class NotificationAutomationEngine {
                 messages.push({ id: doc.id, ...doc.data() });
             });
 
-            // If weekend, prioritize messages with spiritual or weekend tags
-            if (isWeekend) {
-                const spiritualMessages = messages.filter(m =>
-                    (m.tags || []).some(t => ['spiritual', 'godFirst', 'faith', 'weekend', 'sunday', 'blessing'].includes(t))
-                );
-                if (spiritualMessages.length > 0) {
-                    messages = spiritualMessages;
-                }
+            // Religious & Holy Day Filtering (Friday = Islam/Jummah, Saturday = Sabbath, Sunday = Christian Worship)
+            if (dayOfWeek === 5) { // Friday
+                const fridayMsgs = messages.filter(m => (m.tags || []).some(t => ['friday', 'jummah', 'islam', 'spiritual'].includes(t)));
+                if (fridayMsgs.length > 0) messages = fridayMsgs;
+            } else if (dayOfWeek === 6) { // Saturday
+                const sabathMsgs = messages.filter(m => (m.tags || []).some(t => ['sabath', 'saturday', 'rest', 'spiritual'].includes(t)));
+                if (sabathMsgs.length > 0) messages = sabathMsgs;
+            } else if (dayOfWeek === 0) { // Sunday
+                const sundayMsgs = messages.filter(m => (m.tags || []).some(t => ['sunday', 'church', 'christian', 'worship', 'blessing', 'spiritual'].includes(t)));
+                if (sundayMsgs.length > 0) messages = sundayMsgs;
             }
 
             // Fetch recent history to avoid repetition (last 30 days)

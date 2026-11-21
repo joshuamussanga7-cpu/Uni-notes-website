@@ -853,6 +853,7 @@
                     <button onclick="switchNotifSubTab('calendar')" id="notif-subtab-btn-calendar" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">📅 Calendar</button>
                     <button onclick="switchNotifSubTab('campaigns')" id="notif-subtab-btn-campaigns" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">🎯 Campaigns</button>
                     <button onclick="switchNotifSubTab('analytics')" id="notif-subtab-btn-analytics" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">📈 Analytics</button>
+                    <button onclick="switchNotifSubTab('religious')" id="notif-subtab-btn-religious" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">🕊️ Religious Days (Fri/Sat/Sun)</button>
                     <button onclick="switchNotifSubTab('settings')" id="notif-subtab-btn-settings" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">⚙️ Settings & Emergency</button>
                 </div>
 
@@ -1191,6 +1192,54 @@
                         <div class="glass-watery-card rounded-2xl p-6">
                             <h4 class="text-xs font-bold text-slate-400 uppercase">Spiritual Weekend Engagement</h4>
                             <p class="text-xl font-bold text-white mt-2">96.5% Read Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBTAB: RELIGIOUS & HOLY DAYS (Fri/Sat/Sun) -->
+                <div id="notif-subtab-content-religious" class="notif-subtab-content hidden space-y-6">
+                    <div class="glass-watery-card rounded-3xl p-6 sm:p-8 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                                <span>🕊️</span><span>Religious & Holy Days Automated Scheduling</span>
+                            </h3>
+                            <p class="text-slate-400 text-xs mt-1">The automated system dynamically adapts daily notification sessions based on sacred days of the week.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+                            <div class="glass-watery-panel rounded-2xl p-5 space-y-3 border border-emerald-500/20">
+                                <h4 class="font-extrabold text-emerald-400 text-sm flex items-center space-x-2">
+                                    <span>🕌</span><span>Friday (Jummah & Islamic Reflection)</span>
+                                </h4>
+                                <p class="text-slate-300">On Fridays, the selection engine automatically prioritizes messages tagged with <code class="text-primary font-mono">#friday</code>, <code class="text-primary font-mono">#jummah</code>, or <code class="text-primary font-mono">#islam</code> to inspire Muslim students.</p>
+                                <div class="p-3 bg-slate-900 rounded-xl font-mono text-[10px] text-slate-400">
+                                    Tag example: #friday #jummah #blessing
+                                </div>
+                            </div>
+
+                            <div class="glass-watery-panel rounded-2xl p-5 space-y-3 border border-primary/20">
+                                <h4 class="font-extrabold text-primary text-sm flex items-center space-x-2">
+                                    <span>🕊️</span><span>Saturday (Sabbath Observance & Rest)</span>
+                                </h4>
+                                <p class="text-slate-300">On Saturdays, the selection engine prioritizes messages tagged with <code class="text-primary font-mono">#sabath</code>, <code class="text-primary font-mono">#saturday</code>, or <code class="text-primary font-mono">#rest</code> for Sabbath keepers.</p>
+                                <div class="p-3 bg-slate-900 rounded-xl font-mono text-[10px] text-slate-400">
+                                    Tag example: #sabath #rest #peace
+                                </div>
+                            </div>
+
+                            <div class="glass-watery-panel rounded-2xl p-5 space-y-3 border border-amber-500/20">
+                                <h4 class="font-extrabold text-amber-400 text-sm flex items-center space-x-2">
+                                    <span>⛪</span><span>Sunday (Sunday Worship & Reflection)</span>
+                                </h4>
+                                <p class="text-slate-300">On Sundays, the system prioritizes messages tagged with <code class="text-primary font-mono">#sunday</code>, <code class="text-primary font-mono">#church</code>, <code class="text-primary font-mono">#worship</code>, or <code class="text-primary font-mono">#christian</code>.</p>
+                                <div class="p-3 bg-slate-900 rounded-xl font-mono text-[10px] text-slate-400">
+                                    Tag example: #sunday #worship #faith
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-xs text-slate-300">
+                            💡 <strong>Admin Tip:</strong> To add religious messages, simply go to Morning, Midday, or Evening message managers, create your message, and include the appropriate religious tags (e.g. <code class="text-primary font-mono">#friday</code> or <code class="text-primary font-mono">#sunday</code>). The backend cron engine handles the rest automatically!
                         </div>
                     </div>
                 </div>

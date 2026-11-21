@@ -1426,7 +1426,7 @@ async function logAdminAction(actionMessage) {
  */
 
 function switchNotifSubTab(subTabName) {
-    const subTabs = ['overview', 'morning', 'evening', 'night', 'latenight', 'history', 'calendar', 'campaigns', 'analytics', 'settings'];
+    const subTabs = ['overview', 'broadcast', 'morning', 'evening', 'night', 'latenight', 'history', 'calendar', 'campaigns', 'analytics', 'religious', 'settings'];
     subTabs.forEach(t => {
         const btn = document.getElementById(`notif-subtab-btn-${t}`);
         const content = document.getElementById(`notif-subtab-content-${t}`);
