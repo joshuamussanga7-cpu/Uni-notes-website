@@ -1453,6 +1453,24 @@ function switchNotifSubTab(subTabName) {
     });
 }
 
+const dailyScheduleCache = {};
+
+function getTodayDateString() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+async function getCachedMessageForDay(dateKey, category) {
+    if (!dailyScheduleCache[dateKey]) {
+        dailyScheduleCache[dateKey] = {};
+    }
+    if (!dailyScheduleCache[dateKey][category]) {
+        const msg = await getRandomMessageForCategory(category);
+        dailyScheduleCache[dateKey][category] = msg;
+    }
+    return dailyScheduleCache[dateKey][category];
+}
+
 async function loadNotificationOverview() {
     try {
         const usersSnap = await db.collection("users").get();
@@ -1468,17 +1486,19 @@ async function loadNotificationOverview() {
             .get();
         document.getElementById("stat-sent-today").textContent = historySnap.size;
 
-        // Load Previews
-        ['morning', 'evening', 'night', 'latenight'].forEach(async cat => {
-            const snap = await db.collection("motivationMessages").where("category", "==", cat).limit(1).get();
-            const previewEl = document.getElementById(`overview-${cat}-preview`);
-            if (previewEl && !snap.empty) {
-                const data = snap.docs[0].data();
-                previewEl.textContent = `"${data.title}" - ${data.body.substring(0, 60)}...`;
+        // Load Previews synchronized with Calendar Today
+        const todayStr = getTodayDateString();
+        const cats = { morning: 'overview-morning-preview', evening: 'overview-evening-preview', night: 'overview-night-preview', latenight: 'overview-latenight-preview' };
+
+        for (const [cat, elementId] of Object.entries(cats)) {
+            const previewEl = document.getElementById(elementId);
+            const msg = await getCachedMessageForDay(todayStr, cat);
+            if (previewEl && msg) {
+                previewEl.textContent = `"${msg.title}" - ${msg.body.substring(0, 60)}...`;
             } else if (previewEl) {
                 previewEl.textContent = "No active messages configured in this category.";
             }
-        });
+        }
     } catch (e) {
         console.error("Error loading notification overview:", e);
     }
@@ -1798,10 +1818,27 @@ async function loadNotificationCalendar() {
         const isWeekend = d.getDay() === 0 || d.getDay() === 6;
         const spiritualBadge = isWeekend ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">✨ Spiritual / Weekend Focus</span>' : '';
 
-        const morningMsg = await getRandomMessageForCategory('morning');
-        const middayMsg = await getRandomMessageForCategory('evening');
-        const eveningMsg = await getRandomMessageForCategory('night');
-        const latenightMsg = await getRandomMessageForCategory('latenight');
+async function loadNotificationCalendar() {
+    const grid = document.getElementById("notification-calendar-grid");
+    if (!grid) return;
+
+    const days = ['Today', 'Tomorrow', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+    let html = '';
+
+    for (let index = 0; index < days.length; index++) {
+        const day = days[index];
+        const d = new Date();
+        d.setDate(d.getDate() + index);
+        const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const dateStr = d.toLocaleDateString();
+        const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+        const spiritualBadge = isWeekend ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">✨ Spiritual / Weekend Focus</span>' : '';
+
+        // Today (index === 0) uses shared cache so it matches Overview perfectly
+        const morningMsg = index === 0 ? await getCachedMessageForDay(dateKey, 'morning') : await getRandomMessageForCategory('morning');
+        const middayMsg = index === 0 ? await getCachedMessageForDay(dateKey, 'evening') : await getRandomMessageForCategory('evening');
+        const eveningMsg = index === 0 ? await getCachedMessageForDay(dateKey, 'night') : await getRandomMessageForCategory('night');
+        const latenightMsg = index === 0 ? await getCachedMessageForDay(dateKey, 'latenight') : await getRandomMessageForCategory('latenight');
 
         html += `
             <div class="glass-watery-card rounded-2xl p-5 space-y-3">
@@ -1813,7 +1850,7 @@ async function loadNotificationCalendar() {
                     <div id="cal-slot-morning-${index}" class="p-3 bg-slate-900/80 rounded-xl border border-white/5 space-y-1.5">
                         <div class="flex items-center justify-between">
                             <span class="text-primary font-bold">08:00 AM: Morning 🌅</span>
-                            <button onclick="shuffleCalendarMessage('morning', 'cal-slot-morning-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
+                            <button onclick="shuffleCalendarMessage('${dateKey}', 'morning', 'cal-slot-morning-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
                         </div>
                         <p class="text-slate-300 text-[11px] italic">"${morningMsg ? morningMsg.title : 'No message configured'}"</p>
                     </div>
@@ -1821,7 +1858,7 @@ async function loadNotificationCalendar() {
                     <div id="cal-slot-midday-${index}" class="p-3 bg-slate-900/80 rounded-xl border border-white/5 space-y-1.5">
                         <div class="flex items-center justify-between">
                             <span class="text-primary font-bold">12:00 PM: Midday ☀️</span>
-                            <button onclick="shuffleCalendarMessage('evening', 'cal-slot-midday-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
+                            <button onclick="shuffleCalendarMessage('${dateKey}', 'evening', 'cal-slot-midday-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
                         </div>
                         <p class="text-slate-300 text-[11px] italic">"${middayMsg ? middayMsg.title : 'No message configured'}"</p>
                     </div>
@@ -1829,7 +1866,7 @@ async function loadNotificationCalendar() {
                     <div id="cal-slot-evening-${index}" class="p-3 bg-slate-900/80 rounded-xl border border-white/5 space-y-1.5">
                         <div class="flex items-center justify-between">
                             <span class="text-primary font-bold">06:00 PM: Evening 📚</span>
-                            <button onclick="shuffleCalendarMessage('night', 'cal-slot-evening-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
+                            <button onclick="shuffleCalendarMessage('${dateKey}', 'night', 'cal-slot-evening-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
                         </div>
                         <p class="text-slate-300 text-[11px] italic">"${eveningMsg ? eveningMsg.title : 'No message configured'}"</p>
                     </div>
@@ -1837,7 +1874,7 @@ async function loadNotificationCalendar() {
                     <div id="cal-slot-latenight-${index}" class="p-3 bg-slate-900/80 rounded-xl border border-white/5 space-y-1.5">
                         <div class="flex items-center justify-between">
                             <span class="text-primary font-bold">10:00 PM: Late-Night 🌙</span>
-                            <button onclick="shuffleCalendarMessage('latenight', 'cal-slot-latenight-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
+                            <button onclick="shuffleCalendarMessage('${dateKey}', 'latenight', 'cal-slot-latenight-${index}')" class="px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-[10px] font-bold">🔄 Change</button>
                         </div>
                         <p class="text-slate-300 text-[11px] italic">"${latenightMsg ? latenightMsg.title : 'No message configured'}"</p>
                     </div>
@@ -1860,14 +1897,21 @@ async function getRandomMessageForCategory(category) {
     }
 }
 
-async function shuffleCalendarMessage(category, elementId) {
+async function shuffleCalendarMessage(dateKey, category, elementId) {
+    const msg = await getRandomMessageForCategory(category);
+    if (msg) {
+        if (!dailyScheduleCache[dateKey]) dailyScheduleCache[dateKey] = {};
+        dailyScheduleCache[dateKey][category] = msg;
+    }
     const container = document.getElementById(elementId);
     if (!container) return;
-    const msg = await getRandomMessageForCategory(category);
     const p = container.querySelector("p");
     if (p && msg) {
         p.textContent = `"${msg.title}"`;
-        showToast('success', 'Message Shuffled', `New message loaded for ${category} session.`);
+        showToast('success', 'Message Shuffled', `New message assigned for ${category} on ${dateKey}.`);
+        if (dateKey === getTodayDateString()) {
+            loadNotificationOverview();
+        }
     }
 }
 
