@@ -2249,20 +2249,20 @@ async function loadCoursesForBroadcast() {
     const select = document.getElementById("broadcast-course");
     if (!select) return;
 
-    // Official University Notes courses
-    const officialCourses = [
-        "Bachelor of Science in Information Technology (BSc IT)",
-        "Bachelor of Science in Nursing",
-        "Bachelor of Accounting and Finance (BAF)",
-        "Bachelor of Business Administration",
+    // Exact registration courses matching AppDataSource and RegisterActivity.kt
+    const registrationCourses = [
         "Bachelor of Science with Education",
         "Bachelor of Arts with Education",
+        "Bachelor of Business Administration",
         "Bachelor of Commerce with Education",
+        "Bachelor of Accounting and Finance (BAF)",
         "Bachelor of Arts in Theology",
+        "Bachelor of Science in Information Technology (BSc IT)",
+        "Bachelor of Science in Nursing",
         "Bachelor of Health Services Management (BHSM)"
     ];
 
-    const coursesSet = new Set(officialCourses);
+    const coursesSet = new Set(registrationCourses);
 
     try {
         const snap = await db.collection("users").get();
