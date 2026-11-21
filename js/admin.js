@@ -1465,8 +1465,27 @@ async function getCachedMessageForDay(dateKey, category) {
         dailyScheduleCache[dateKey] = {};
     }
     if (!dailyScheduleCache[dateKey][category]) {
-        const msg = await getRandomMessageForCategory(category);
-        dailyScheduleCache[dateKey][category] = msg;
+        try {
+            const docRef = db.collection("notificationSchedules").doc(dateKey);
+            const docSnap = await docRef.get();
+            if (docSnap.exists && docSnap.data()[category]) {
+                dailyScheduleCache[dateKey][category] = docSnap.data()[category];
+            } else {
+                const msg = await getRandomMessageForCategory(category);
+                if (msg) {
+                    dailyScheduleCache[dateKey][category] = msg;
+                    await docRef.set({
+                        date: dateKey,
+                        [category]: msg,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                }
+            }
+        } catch (e) {
+            console.error("Error fetching daily schedule from Firestore:", e);
+            const msg = await getRandomMessageForCategory(category);
+            dailyScheduleCache[dateKey][category] = msg;
+        }
     }
     return dailyScheduleCache[dateKey][category];
 }
@@ -1887,13 +1906,23 @@ async function shuffleCalendarMessage(dateKey, category, elementId) {
     if (msg) {
         if (!dailyScheduleCache[dateKey]) dailyScheduleCache[dateKey] = {};
         dailyScheduleCache[dateKey][category] = msg;
+
+        try {
+            await db.collection("notificationSchedules").doc(dateKey).set({
+                date: dateKey,
+                [category]: msg,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        } catch (e) {
+            console.error("Error updating schedule in Firestore:", e);
+        }
     }
     const container = document.getElementById(elementId);
     if (!container) return;
     const p = container.querySelector("p");
     if (p && msg) {
         p.textContent = `"${msg.title}"`;
-        showToast('success', 'Message Shuffled', `New message assigned for ${category} on ${dateKey}.`);
+        showToast('success', 'Message Updated & Locked', `New message locked in for ${category} on ${dateKey}.`);
         if (dateKey === getTodayDateString()) {
             loadNotificationOverview();
         }
