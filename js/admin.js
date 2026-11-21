@@ -1668,7 +1668,11 @@ async function toggleFavoriteMessage(id, currentFav) {
     }
 }
 
-function openCsvImportModal() {
+let currentImportCategory = 'morning';
+
+function openCsvImportModal(category = 'morning') {
+    currentImportCategory = category;
+    document.getElementById("notif-csv-file").value = "";
     document.getElementById("notif-csv-modal").classList.remove("hidden");
 }
 
@@ -1701,7 +1705,14 @@ async function processCsvImport() {
             if (cols.length >= 2) {
                 const title = cols[0].replace(/^["']|["']$/g, '').trim();
                 const body = cols[1].replace(/^["']|["']$/g, '').trim();
-                const category = (cols[2] || 'morning').replace(/^["']|["']$/g, '').trim().toLowerCase();
+                let category = cols[2] ? cols[2].replace(/^["']|["']$/g, '').trim().toLowerCase() : currentImportCategory;
+
+                // Normalize category mapping
+                if (['midday', 'afternoon', 'evening'].includes(category)) category = 'evening';
+                else if (['night', 'study', 'evening-study'].includes(category)) category = 'night';
+                else if (['latenight', 'late'].includes(category)) category = 'latenight';
+                else if (!['morning', 'evening', 'night', 'latenight'].includes(category)) category = currentImportCategory;
+
                 const tagsStr = (cols[3] || 'motivation').replace(/^["']|["']$/g, '').trim();
                 const tags = tagsStr.split(';').map(t => t.trim());
 
@@ -1709,7 +1720,7 @@ async function processCsvImport() {
                 batch.set(ref, {
                     title,
                     body,
-                    category: ['morning', 'evening', 'night', 'latenight'].includes(category) ? category : 'morning',
+                    category,
                     tags,
                     status: 'active',
                     isFavorite: false,
@@ -1721,9 +1732,10 @@ async function processCsvImport() {
 
         try {
             await batch.commit();
-            showToast('success', 'Bulk Import Successful', `Successfully imported ${count} motivational messages!`);
-            logAdminAction(`Bulk imported ${count} messages via CSV`);
+            showToast('success', 'Bulk Import Successful', `Successfully imported ${count} motivational messages into ${currentImportCategory}!`);
+            logAdminAction(`Bulk imported ${count} messages into ${currentImportCategory} via CSV`);
             closeCsvImportModal();
+            loadMessages(currentImportCategory);
             loadNotificationOverview();
         } catch (err) {
             console.error("CSV batch commit error:", err);
